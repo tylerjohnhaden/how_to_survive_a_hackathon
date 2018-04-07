@@ -23,6 +23,13 @@ hackAreaPNG.onload = function(){
 	ctx.drawImage(hackAreaPNG, 0, 32);
 };
 
+//////   gui   //////
+//dialog
+var dialogIMG = new Image();
+dialogIMG.src = '../gui/dialog_box.png';
+var dialogReady = false;
+dialogIMG.onload = function(){dialogReady = true;};
+
 
 //level
 var map = [];
@@ -101,6 +108,16 @@ var player = {
 
 }
 
+var team = {
+	members : [],
+	morality : 100,
+	projectProg : 0,
+	caffeine : 50,
+	challenges : [],
+}
+
+
+var hackers = [];
 
 
 /////////////////     GENERIC FUNCTIONS   ///////////
@@ -530,7 +547,7 @@ function collide(sprite, boundary=null){
 
 //if within the game bounds
 function withinBounds(x,y){
-	var xBound = (x >= Math.floor(camera.x / 16) - 1) && (x <= Math.floor(camera.x / 16) + (canvas.width / 16));
+	var xBound = (x >= Math.floor(camera.x / story.size) - 1) && (x <= Math.floor(camera.x / story.size) + (canvas.width / story.size));
 	return xBound;
 }
 
@@ -769,21 +786,19 @@ function render(){
 	//draw the buildings if behind player
 
 	for(var i=0;i<items.length;i++){
-		if(items[i].thru)
-			renderItem(items[i]);
+		renderItem(items[i]);
 	}
 
 	//if npc behind player
 	for(var c=0;c<npcs.length;c++){
-		if(player.y >= npcs[c].y)
-			drawsprite(npcs[c]);
+		drawchar(npcs[c]);
 	}
 
 	//draw player
 	drawchar(player);
 
 	//gui
-	//drawGUI();
+	drawGUI();
 
 
 	//if(story.area === "vals")
@@ -792,6 +807,183 @@ function render(){
 	ctx.restore();
 	// requestAnimationFrame(render);
 
+}
+
+function drawGUI(){
+	drawDialog();
+}
+
+
+////////////////////   DIALOGUE     ///////////////////
+
+//show dialog gui
+function drawDialog(){
+	var dialogue = story.dialogue;
+	var choice = story.choice_box;
+	if(dialogue.show && dialogReady){
+		ctx.drawImage(dialogIMG, camera.x, camera.y);
+		//wrapText(dialogue.text[dialogue.index], camera.x + 12, camera.y + 116)
+		showText();
+
+		/*
+		if(choice.show){
+			//choice boxes
+			for(var c=0;c<choice.options.length;c++){
+				var cx = camera.x+6;
+				var cy = camera.y+95+(-11*(c+1));
+				ctx.drawImage(optionIMG, cx, cy);
+				ctx.font = "6px Gameboy";
+				ctx.fillText(choice.options[choice.options.length-(c+1)], cx+4, cy+9);
+			}
+
+			//select
+			ctx.drawImage(selectIMG, camera.x+6, camera.y+95+(11*(choice.index-choice.options.length)));
+		}
+		*/
+
+		
+		if(choice.show){
+			//get the maximum x length
+			var longest = 10;
+			if(!hasMultiLine()){
+				longest = bigChoice(choice.options);
+			}
+
+			//choice boxes
+			var cx = camera.x+3;
+			for(var c=0;c<choice.options.length;c++){
+				var cy = camera.y+95+(-((optionIMG.height-2)/2)*(sumLines(c)));
+
+				//var cy = camera.y+95+(-(optionIMG.height-1)*((sumLines(c)*11)+1));
+				ctx.drawImage(optionIMG, 0,0, optionIMG.width, optionIMG.height, 
+								cx, cy, (longest/10)*(optionIMG.width), (choice.lines[c]/2)*optionIMG.height);
+				choiceText(choice.options[c], choice.lines[c], cy+9);
+
+				//ctx.font = "6px Gameboy";
+				//ctx.fillText(choice.options[choice.options.length-(c+1)], cx+4, cy+9);
+			}
+
+			//select
+			var cy2 = camera.y+95-((optionIMG.height-2)/2)*(sumLines(choice.index));
+			//((((optionIMG.height-2)/2)*(sumLines(choice.index)))*(choice.index-choice.options.length)), 
+
+			ctx.drawImage(selectIMG, 0,0, selectIMG.width, selectIMG.height, 
+								cx, cy2,
+								(longest/10)*(selectIMG.width), (choice.lines[choice.index]/2)*selectIMG.height);
+		}
+		
+	}
+}
+
+//find the longest line of text
+function bigChoice(arr){
+	var longest = 0;
+	for(var i=0;i<arr.length;i++){
+		longest = (arr[i].length > longest ? arr[i].length : longest);
+	}
+	return longest+1;
+}
+
+//wrap the text if overflowing on the choice box
+function choiceText(text, lines, y) {
+	var texts = text.split(" | ");
+	ctx.font = "14px Courier";
+	for(var l=0;l<lines;l++){
+		ctx.fillText(texts[l], camera.x+7, y+(l*9));
+	}
+}	
+
+//
+function sumLines(i){
+	var lines = story.choice_box.lines;
+	var sum = 0;
+	for(var l=i;l<lines.length;l++){
+		sum += lines[l];
+	}
+	return sum;
+}
+
+function hasMultiLine(){
+	for(var l=0;l<story.choice_box.lines.length;l++){
+		if(story.choice_box.lines[l] > 1)
+			return true;
+	}
+	return false;
+}
+
+//typewriter functions
+var tw = 0;
+var curLine = 0;						//current line index
+var curText = "";
+var text_speed = 85;
+var text_time = 0;					//typewriter effect
+var texting = false;				//currently typing
+var lineTexts = ["", ""];		//the two lines that can be shown on screen
+var maxWidth = 140;
+var lineHeight = 16;
+var jump = -1;
+
+function typewrite(){	
+
+	//pre-processing and reset
+	if(!texting){
+		curText = story.dialogue.text[story.dialogue.index];		//set the text to the NPC or item text 
+		if(!curText)
+			return;
+
+		//check if section jump
+		if(jump == -1){
+			var jumper = curText.match(/<[0-9]+>/g);
+			if(jumper){
+				curText = curText.replace(/<[0-9]+>/g, "");
+				jump = parseInt(jumper[0].replace(/[<>]/g, ""));
+			}
+		}
+		curText = curText.replace(/<[0-9]+>/g, "");		//catch the stragler
+		tw = 0;
+		//console.log("restart")
+		curLine = 0;
+		clearText();
+		ctx.font = "16px Courier";
+		ctx.fillStyle = "#000000";
+		texting = true;
+	}
+	if(tw < curText.length){
+		//if at a new line reset
+		if(curText[tw] === "|"){
+			tw++;
+			curLine++;
+			if(curLine > 1){
+				lineTexts[0] = lineTexts[1];
+				lineTexts[1] = "";
+			}
+		}
+		//append letters
+		else{
+			if(curLine == 0)
+				lineTexts[0] += curText[tw];
+			else
+				lineTexts[1] += curText[tw];
+		}
+		text_time = setTimeout(typewrite, text_speed);
+		tw++;
+	}else{
+		texting = false;
+		clearTimeout(text_time);
+		//console.log("done");
+	}
+}
+
+function clearText(){
+	lineTexts[0] = "";
+	lineTexts[1] = "";
+	clearTimeout(text_time);
+}
+
+function showText(){
+	ctx.fillStyle = "#000000";
+	ctx.fillText(lineTexts[0], camera.x + 16, camera.y + 172);
+	ctx.fillText(lineTexts[1], camera.x + 16, camera.y + 172 + lineHeight);
 }
 
 
@@ -910,7 +1102,7 @@ function actionKeys(){
 				reInteract = false;
 				player.other = npcs[i];
 				player.other.interact = true;
-				faceOpposite(player.other);
+				//faceOpposite(player.other);
 				player.interact = true;
 				clearInterval(npcs[i].wt);
 				npcs[i].wt = 0;
@@ -984,6 +1176,24 @@ function normal_game_action(){
 
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
+function makeHackers(){
+	var mac = new hacker("Mac", 1, 2, "deployment", new skill(20, 0, 0, 0, 0));
+	var sonia = new hacker("Sonia", 3, 5, "debugger", new skill(0, 0, 0, 20, 0));
+	var nick = new hacker("Nick", 15, 8, "developer", new skill(0, 20, 0, 0, 0));
+	var anthony = new hacker("Anthony", 8, 10, "design", new skill(0, 0, 20, 0, 0));
+	var belle = new hacker("Belle", 13, 5, "researcher", new skill(0, 0, 0, 0, 20));
+	var troy = new hacker("Troy", 6, 5, "jack", new skill(5,5,5,5,5));
+
+	hackers.push(mac);
+	hackers.push(sonia);
+	hackers.push(nick);
+	hackers.push(anthony);
+	hackers.push(belle);
+	hackers.push(troy);
+
+	npcs.push.apply(npcs, hackers);
+}
+
 function init(){
 	map = [
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
@@ -1001,6 +1211,7 @@ function init(){
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 			];
 	level_loaded = true;
+	makeHackers()
 }
 
 function main(){
@@ -1021,6 +1232,14 @@ function main(){
 			travel(npc);
 			defaultBehavior(npc);
 		}
+	}
+
+	//dialogue
+	if(!story.cutscene){
+		if(player.interact){
+			story.dialogue.show = true;
+		}else
+			story.dialogue.show = false;
 	}
 
 //keyboard ticks

@@ -31,3 +31,8 @@ var story = {
 
 	playerCt : 0
 }
+
+
+function triggerWord(word){
+	return false;
+}
