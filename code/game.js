@@ -26,7 +26,7 @@ hackAreaPNG.onload = function(){
 
 //level
 var map = [];
-var rows = 12;
+var rows = 13;
 var cols = 17;
 var size = story.size;
 var level_loaded = false;
@@ -342,6 +342,7 @@ function defaultBehavior(npc){
 ///////////////////     COLLISIONS     ////////////////
 
 
+
 //if hit a collision point on the wall
 function hitWall(person){
 	if(!level_loaded)
@@ -357,10 +358,14 @@ function hitWall(person){
 		rx = Math.floor(person.x / size);
 		ry = Math.floor(person.y / size);
 	}
-	
+
+
 
 	//edge of map = undecided
-	if(rx-1 < 0 || rx+1 >= cols || ry-1 < 0 || ry+1 >= cols)
+	if((person.dir === "west" && rx-1 < 0) 
+		|| (person.dir === "east" && rx+1 >= cols) 
+			|| (person.dir === "north" && ry-1 < 0) 
+				|| (person.dir === "east" && ry+1 >= rows))
 		return;
 
 	//decide if adjacent to person
@@ -1042,6 +1047,7 @@ function main(){
 
 	var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
 	settings += " --- Pix X: " + pixX + " | Pix Y: " + pixY;
+	settings += " --- " + hitWall(player)  + " " + player.dir;
 	document.getElementById('debug').innerHTML = settings;
 
 }
