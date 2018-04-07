@@ -31,6 +31,10 @@ function hacker(name, x, y, classType, XP){
 
 	this.width = 16;
 	this.height = 16;
+	this.dir = "north";
+	this.action = "idle";
+	this.moving = false;
+
 	//other properties
 	this.text = ["Hi! Welcome to the Hackathon!"];
 	this.text_index = 0;
