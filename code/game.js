@@ -5,8 +5,8 @@
 var canvas = document.createElement("canvas");
 canvas.id = "game";
 var ctx = canvas.getContext("2d");
-canvas.width = 360;
-canvas.height = 240;
+canvas.width = 288;
+canvas.height = 224;
 document.body.appendChild(canvas);
 
 //background image
@@ -15,6 +15,14 @@ bgPNG.src = "../sprites/background.png";
 bgPNG.onload = function(){
 	ctx.drawImage(bgPNG, 0, 0);
 };
+
+//background image
+var hackAreaPNG = new Image();
+hackAreaPNG.src = "../sprites/hackarea.png";
+hackAreaPNG.onload = function(){
+	ctx.drawImage(hackAreaPNG, 0, 32);
+};
+
 
 //level
 var map = [];
@@ -78,8 +86,8 @@ var player = {
 		speed : 2,
 		initPos : 0,
 		moving : false,
-		x : 0 * size, 
-		y : 0 * size,
+		x : 8 * size, 
+		y : 4 * size,
 		velX : 0,
 		velY : 0,
 		show : true,
@@ -571,6 +579,9 @@ function render(){
 	ctx.fillStyle = ptrn;
 	ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 	
+	//draw hack are
+	ctx.drawImage(hackAreaPNG, 0, 32);
+
 	//draw the map
 	//drawMap();
 
@@ -793,7 +804,20 @@ function normal_game_action(){
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
 function init(){
-
+	map = [
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			];
+	level_loaded = true;
 }
 
 function main(){
@@ -827,6 +851,21 @@ function main(){
 	}
 	moveKeys();
 	actionKeys();
+
+	///////////////    DEBUG   //////////////////
+
+	var pixX = Math.round(player.x / size);
+	var pixY = Math.round(player.y / size);
+
+	if(npcs.length > 0){
+		var nx = Math.round(npcs[0].x / size);
+		var ny = Math.round(npcs[0].y / size);
+	}
+
+	var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
+	settings += " --- Pix X: " + pixX + " | Pix Y: " + pixY;
+	document.getElementById('debug').innerHTML = settings;
+
 }
 
 /*
