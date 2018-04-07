@@ -197,6 +197,71 @@ if n:
 
 Staff: No problem, talk to people and come back when you're ready!
 
+Act III Scene I
+
+** Blaring microphone
+
+Announcer: Everybody should be set for the hackathon which will continue for 36 hours.
+
+Announcer: You are encouraged to talk to sponsors, organizers, and other hackers.
+
+Announcer: They may be able to assist you with your project.
+
+Announcer: After the hacking period, there will be judges that will test your projects.
+
+Announcer: Good luck and happy hacking!
+
+Act III Scene II
+
+Hacker: I should probably set up somewhere.
+
+** Walks over to table
+
+** Stuff appears, team huddles around table
+
+Hacker: Alright, we need to set up a server to share all of our data.
+
+** Click. Click. Beep. 
+
+Hacker: Is anybody else having a hard time accessing the wifi?
+
+Person 1 from the Team : Yeah I think it's because everyone is trying to use it all at once.
+
+Person 1 from the Team: We don't need wifi, but it would take longer to finish the project.
+
+Person 2 from the Team: I think we should start right away.
+
+Person 2 from the Team: It's up to you ______. We can ask the organizers, or just start.
+
+if Hacker goes to Organizer:
+
+Hacker: Hey I think there is a problem with the wifi, I don't think its working.
+
+Organizer: Yeah I am terribly sorry. The systems are being overloaded.
+
+Organizer: I desperately need help. I can't fix the system because all of the others are helping other people.
+
+Organizer: Can you help me please? (y/n)
+
+if n:
+
+Hacker: I have to start my project. I won't have time.
+
+if y:
+
+Hacker: Sure, I'll be glad to help. What do you want me to do?
+
+Organizer: I need you to find me fiber optic cable.
+
+Organizer: With that, I'll be able to upgrade the system for larger bandwith.e
+
+
+
+
+
+
+
+
 
 
 
