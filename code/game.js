@@ -27,10 +27,10 @@ hackAreaPNG.onload = function(){
 //level
 var map = [];
 var rows = 12;
-var cols = 18;
+var cols = 17;
 var size = story.size;
 var level_loaded = false;
-var collideTiles = [];
+var collideTiles = [1];
 var tiles = new Image();
 //tiles.src = "map/tileset.png";
 var tilesReady = false;
@@ -337,10 +337,186 @@ function defaultBehavior(npc){
 	}
 }
 
+
+
+///////////////////     COLLISIONS     ////////////////
+
+
+//if hit a collision point on the wall
+function hitWall(person){
+	if(!level_loaded)
+		return false;
+
+	//get the positions
+	var rx;
+	var ry;
+	if(person.dir === "north" || person.dir === "west"){
+		rx = Math.ceil(person.x / size);
+		ry = Math.ceil(person.y / size);
+	}else if(person.dir === "south" || person.dir === "east"){
+		rx = Math.floor(person.x / size);
+		ry = Math.floor(person.y / size);
+	}
+	
+
+	//edge of map = undecided
+	if(rx-1 < 0 || rx+1 >= cols || ry-1 < 0 || ry+1 >= cols)
+		return;
+
+	//decide if adjacent to person
+	if(person.dir == "north" && inArr(collideTiles, map[ry-1][rx]))
+		return true;
+	else if(person.dir == "south" && inArr(collideTiles, map[ry+1][rx]))
+		return true;
+	else if(person.dir == "east" && inArr(collideTiles, map[ry][rx+1]))
+		return true;
+	else if(person.dir == "west" && inArr(collideTiles, map[ry][rx-1]))
+		return true;
+	else
+		return false;
+}
+
+//if hit another person
+function hitNPC(person){
+
+	//get the positions
+	var rx;
+	var ry;
+	if(person.dir === "north" || person.dir === "west"){
+		rx = Math.ceil(person.x / size);
+		ry = Math.ceil(person.y / size);
+	}else if(person.dir === "south" || person.dir === "east"){
+		rx = Math.floor(person.x / size);
+		ry = Math.floor(person.y / size);
+	}
+
+	//decide if adjacent to person
+	var ouch = false;
+	for(var i=0;i<npcs.length;i++){
+		var n = npcs[i];
+
+		if(n == person || !n.show)
+			continue;
+
+		nx = Math.floor(n.x / size);
+		ny = Math.floor(n.y / size);
+
+		if(person.dir == "north" && (rx == nx) && (ry-1 == ny))
+			ouch = true;
+		else if(person.dir == "south" && (rx == nx) && (ry+1 == ny))
+			ouch = true;
+		else if(person.dir == "east" && (rx+1 == nx) && (ry == ny))
+			ouch = true;
+		else if(person.dir == "west" && (rx-1 == nx) && (ry == ny))
+			ouch = true;
+	}
+	return ouch;
+}
+
+//if hit a specific boundary area
+function hitBoundary(sprite, boundary){
+	//boundary in the form [x,y,w,h]
+	if(boundary == null){
+		return false;
+	}
+	
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+	
+
+	//edge of map = undecided
+	if(rx-1 < 0 || rx+1 >= cols || ry-1 < 0 || ry+1 >= cols)
+		return;
+
+	//get bounding box area
+	var xArea = [];
+	for(var z=0;z<boundary.w;z++){
+		xArea.push(boundary.x+z);
+	}
+	var yArea = [];
+	for(var z=0;z<boundary.h;z++){
+		yArea.push(boundary.y+z);
+	}
+
+	//console.log(xArea + "\t" + yArea);
+
+	if(sprite.dir == "north" && (!inArr(xArea, rx) || !inArr(yArea, ry-1)))
+		return true;
+	else if(sprite.dir == "south" && (!inArr(xArea, rx) || !inArr(yArea, ry+1)))
+		return true;
+	else if(sprite.dir == "east" && (!inArr(xArea, rx+1) || !inArr(yArea, ry)))
+		return true;
+	else if(sprite.dir == "west" && (!inArr(xArea, rx-1) || !inArr(yArea, ry)))
+		return true;
+	
+	return false;
+}
+
+//if hit another generic object
+function hitOther(sprite, other){
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	//decide if adjacent to sprite
+	var nx = Math.floor(other.x / size);
+	var ny = Math.floor(other.y / size);
+
+	if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
+		return true;
+	else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
+		return true;
+	else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
+		return true;
+	else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
+		return true;
+
+	return false;
+}
+
+function screenEdge(sprite){
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	if(sprite.dir == "north" && (ry-1 < 0))
+		return true;
+	else if(sprite.dir == "south" && (ry+1 == rows))
+		return true;
+	else if(sprite.dir == "east" && (rx+1 == cols))
+		return true;
+	else if(sprite.dir == "west" && (rx-1 < 0))
+		return true;
+
+	return false;
+}
+
 //grouped collision checker
 function collide(sprite, boundary=null){
-	return false;
-	//return hitNPC(sprite) || hitItem(sprite) || hitWall(sprite) || hitBoundary(sprite, boundary)
+	//return false;
+	return hitNPC(sprite) || hitWall(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
 }
 
 
@@ -805,17 +981,19 @@ function normal_game_action(){
 
 function init(){
 	map = [
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
+			[0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],
+			[0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0],
+			[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
 			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 			];
 	level_loaded = true;
 }
