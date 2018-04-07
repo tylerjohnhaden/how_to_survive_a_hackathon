@@ -16,6 +16,32 @@ bgPNG.onload = function(){
 	ctx.drawImage(bgPNG, 0, 0);
 };
 
+//level
+var map = [];
+var rows = 12;
+var cols = 18;
+var size = story.size;
+var level_loaded = false;
+var collideTiles = [];
+var tiles = new Image();
+//tiles.src = "map/tileset.png";
+var tilesReady = false;
+tiles.onload = function(){
+	tilesReady = true;
+};
+var tpr = 5; //tiles per row
+
+//camera
+var camera = {
+	x : 0,
+	y : 0
+};
+
+//lists
+var items = [];
+var npcs = [];
+
+
 // directionals
 var upKey = 38;     //[Up]
 var leftKey = 37;   //[Left]
@@ -45,23 +71,17 @@ var player = {
 		name : "Hax",
 		width : 16,
 		height : 16,
-		dir : "south",
-		action : "idle",
 		img : playerIMG,
 		ready : playerReady,
-		offsetX : 0,
-		offsetY : 0,
 
 		//movement
-		speed : 1,
+		speed : 2,
 		initPos : 0,
 		moving : false,
-		x : 20 * size, 
-		y : 12 * size,
+		x : 0 * size, 
+		y : 0 * size,
 		velX : 0,
 		velY : 0,
-		fps : 9,            //frame speed
-		fpr : 3,            //# of frames per row
 		show : true,
 
 		//other properties
@@ -71,21 +91,6 @@ var player = {
 		lastPos : [],
 		following : false,
 
-		//walk animation
-		idleNorth : [10,10,10,10],
-		idleSouth : [1,1,1,1],
-		idleWest : [4,4,4,4],
-		idleEast : [7,7,7,7],
-
-		//movement animation
-		moveNorth : [9,10,11,10],
-		moveSouth : [0,1,2,1],
-		moveWest : [3,4,5,4],
-		moveEast : [6,7,8,7],
-
-		seqlength : 4,
-		curFrame : 0,
-		ct : 0
 }
 
 
@@ -324,6 +329,11 @@ function defaultBehavior(npc){
 	}
 }
 
+//grouped collision checker
+function collide(sprite, boundary=null){
+	return false;
+	//return hitNPC(sprite) || hitItem(sprite) || hitWall(sprite) || hitBoundary(sprite, boundary)
+}
 
 
 ///////////////////   CAMERA  /////////////////////
@@ -436,6 +446,55 @@ function smallStep(robot){
 
 ////////////////////////          RENDER         //////////////////////
 
+//check for render ok
+function checkRender(){
+	//tiles
+	if(!tilesReady){
+		tiles.onload = function(){
+			tilesReady = true;
+		};
+	}
+
+
+	//player
+	if(!player.ready){
+		player.img.onload = function(){player.ready = true;}
+		if(player.img.width !== 0){
+			player.ready = true;
+		}
+	}
+
+	//npcs
+	for(var a=0;a<npcs.length;a++){
+		if(!npcs[a].ready){
+			if(npcs[a].img.width !== 0){
+				npcs[a].ready = true;
+			}
+		}
+	}
+
+	//item
+	for(var i=0;i<items.length;i++){
+		if(!items[i].ready){
+			if(items[i].img.width !== 0){
+				items[i].ready = true;
+			}
+		}
+	}
+
+	/*
+	//gui
+	if(!dialogReady){
+		dialogIMG.onload = function(){dialogReady = true;};
+	}
+	*/
+}
+
+
+function drawchar(sprite){
+	if(sprite.ready && sprite.show)
+		ctx.drawImage(sprite.img, sprite.x, sprite.y);
+}
 
 //draw a character sprite
 function drawsprite(sprite){
@@ -513,10 +572,7 @@ function render(){
 	ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 	
 	//draw the map
-	drawMap();
-
-	//draw the skies
-	drawSky();
+	//drawMap();
 
 	//draw the buildings if behind player
 
@@ -532,20 +588,10 @@ function render(){
 	}
 
 	//draw player
-	drawsprite(player);
+	drawchar(player);
 
-	//if npc in front of player
-	for(var c=0;c<npcs.length;c++){
-		if(player.y < npcs[c].y)
-			drawsprite(npcs[c]);
-	}
-
-	for(var i=0;i<items.length;i++){
-		if(!items[i].thru)
-			renderItem(items[i]);
-	}
-
-	drawGUI();
+	//gui
+	//drawGUI();
 
 
 	//if(story.area === "vals")
@@ -753,6 +799,44 @@ function init(){
 function main(){
 	requestAnimationFrame(main);
 	canvas.focus();
-	//render();
+	render();
+
+	//player movement
+	if(!story.pause)
+		travel(player);
+
+	panCamera();
+
+	//npc movement
+	if(!story.pause){
+		for(var n = 0;n<npcs.length;n++){
+			var npc = npcs[n];
+			travel(npc);
+			defaultBehavior(npc);
+		}
+	}
+
+//keyboard ticks
+	var akey = anyKey();
+	if(akey && kt == 0){
+		kt = setInterval(function(){keyTick+=1}, 75);
+	}else if(!akey){
+		clearInterval(kt);
+		kt = 0;
+		keyTick=0;
+	}
+	moveKeys();
+	actionKeys();
 }
+
+/*
+//prevent scrolling with the game
+window.addEventListener("keydown", function(e) {
+    // space and arrow keys
+    if(([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1)){
+        e.preventDefault();
+    }
+}, false);
+*/
+
 main();
