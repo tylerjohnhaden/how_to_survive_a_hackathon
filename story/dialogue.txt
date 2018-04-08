@@ -263,6 +263,24 @@ if hacker goes to table:
 
 Project: Work on project? y/n
 
+if Hacker talks to random person in team:
+
+Person: Does anybody have a flash drive?
+
+Person: It would be easier to transfer data and the project would be finished quicker.
+
+Person: If you have time, ask around to see if anybody has a flash drive.
+
+from random npc:
+
+npc: Hey hows the project going?
+
+npc: Oh do you need a flash drive?
+
+npc: Here is an extra one that I am not using.
+
+npc: Keep it. It is all yours!
+
 
 
 
