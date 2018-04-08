@@ -5,9 +5,16 @@
 var canvas = document.createElement("canvas");
 canvas.id = "game";
 var ctx = canvas.getContext("2d");
-canvas.width = 360;
-canvas.height = 240;
+canvas.width = 288;
+canvas.height = 224;
 document.body.appendChild(canvas);
+
+var guiCanvas = document.createElement("canvas");
+guiCanvas.id = "guiCanvas";
+var ctx2 = guiCanvas.getContext("2d");
+guiCanvas.width = 288;
+guiCanvas.height = 54;
+document.body.appendChild(guiCanvas);
 
 //background image
 var bgPNG = new Image();
@@ -16,13 +23,52 @@ bgPNG.onload = function(){
 	ctx.drawImage(bgPNG, 0, 0);
 };
 
+//background image
+var hackAreaPNG = new Image();
+hackAreaPNG.src = "../sprites/hackarea.png";
+hackAreaPNG.onload = function(){
+	ctx.drawImage(hackAreaPNG, 0, 32);
+};
+
+//////   gui   //////
+//dialog
+var dialogIMG = new Image();
+dialogIMG.src = '../gui/dialog_box.png';
+var dialogReady = false;
+dialogIMG.onload = function(){dialogReady = true;};
+
+//project bar progress
+var projectBarIMG = new Image();
+projectBarIMG.src = '../gui/projectbar.png';
+var projectBarReady = false;
+projectBarIMG.onload = function(){projectBarReady = true;};
+
+//team skill bar
+var teamBarIMG = new Image();
+teamBarIMG.src = '../gui/teambar.png';
+var teamBarReady = false;
+teamBarIMG.onload = function(){teamBarReady = true;};
+
+//energy bar
+var energyBarIMG = new Image();
+energyBarIMG.src = '../gui/energypic.png';
+var energyReady = false;
+energyBarIMG.onload = function(){energyReady = true;};
+
+//filler bar
+var fillerBarIMG = new Image();
+fillerBarIMG.src = '../gui/fullbar.png';
+var fillerReady = false;
+fillerBarIMG.onload = function(){fillerReady = true;};
+
+
 //level
 var map = [];
-var rows = 12;
-var cols = 18;
+var rows = 13;
+var cols = 17;
 var size = story.size;
 var level_loaded = false;
-var collideTiles = [];
+var collideTiles = [1];
 var tiles = new Image();
 //tiles.src = "map/tileset.png";
 var tilesReady = false;
@@ -78,8 +124,8 @@ var player = {
 		speed : 2,
 		initPos : 0,
 		moving : false,
-		x : 0 * size, 
-		y : 0 * size,
+		x : 8 * size, 
+		y : 4 * size,
 		velX : 0,
 		velY : 0,
 		show : true,
@@ -93,6 +139,33 @@ var player = {
 
 }
 
+var team = {
+	members : [],
+	morality : 100,
+	projectProg : 0,
+	caffeine : 50,
+	challenges : [],
+	teamSkill : [0,0,0,0,0],
+}
+
+var projectIMG = new Image();
+projectIMG.src = "../sprites/project.png";
+var projectReady = false;
+projectIMG.onload = function(){projectReady = true;};
+var project = {
+	x : 256,
+	y : 288,
+	img : projectIMG,
+	ready : projectReady,
+	show : true,
+	text : ["i7c7btb [i kuf", "function(0iuf) {}"],
+	text_index : 0,
+	area : new boundArea(8, 10, 1, 1)
+}
+items.push(project);
+
+
+var hackers = [];
 
 
 /////////////////     GENERIC FUNCTIONS   ///////////
@@ -144,7 +217,7 @@ function goWest(sprite){
 
 //movement on the map
 function travel(sprite){
-	if(sprite.action == "travel"){   //continue if allowed to move
+	if(sprite.action === "travel"){   //continue if allowed to move
 		var curspeed = sprite.speed;
 
 		//travel north
@@ -217,22 +290,22 @@ function velControl(cur, value, max){
 
 
 //the interact function
-function canInteract(person, item){
+function canInteract(sprite, item){
 	if(!item.show)
 		return false;
 
 	//get the positions
 		var rx;
 		var ry;
-		if(person.dir === "north" || person.dir === "west"){
-			rx = Math.ceil(person.x / size);
-			ry = Math.ceil(person.y / size);
-		}else if(person.dir === "south" || person.dir === "east"){
-			rx = Math.floor(person.x / size);
-			ry = Math.floor(person.y / size);
+		if(sprite.dir === "north" || sprite.dir === "west"){
+			rx = Math.ceil(sprite.x / size);
+			ry = Math.ceil(sprite.y / size);
+		}else if(sprite.dir === "south" || sprite.dir === "east"){
+			rx = Math.floor(sprite.x / size);
+			ry = Math.floor(sprite.y / size);
 		}
 	
-		//decide if adjacent to person
+		//decide if adjacent to sprite
 		var t = item;
 		var xArea = [];
 		var yArea = [];
@@ -253,45 +326,45 @@ function canInteract(person, item){
 		
 
 		//determine if able to interact
-		if(person.dir == "north" && (inArr(xArea, rx) && inArr(yArea, ry-1)))
+		if(sprite.dir == "north" && (inArr(xArea, rx) && inArr(yArea, ry-1)))
 			return true;
-		else if(person.dir == "south" && (inArr(xArea, rx) && inArr(yArea, ry+1)))
+		else if(sprite.dir == "south" && (inArr(xArea, rx) && inArr(yArea, ry+1)))
 			return true;
-		else if(person.dir == "east" && (inArr(xArea, rx+1) && inArr(yArea, ry)))
+		else if(sprite.dir == "east" && (inArr(xArea, rx+1) && inArr(yArea, ry)))
 			return true;
-		else if(person.dir == "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
+		else if(sprite.dir == "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
 			return true;
 	
 	return false;
 }
 
 //the talk function
-function canTalk(person, other_pers){
+function canTalk(sprite, other_pers){
 	if(other_pers.moving || !other_pers.show)
 		return false;
 
 	//get the positions
 		var rx;
 		var ry;
-		if(person.dir === "north" || person.dir === "west"){
-			rx = Math.ceil(person.x / size);
-			ry = Math.ceil(person.y / size);
-		}else if(person.dir === "south" || person.dir === "east"){
-			rx = Math.floor(person.x / size);
-			ry = Math.floor(person.y / size);
+		if(sprite.dir === "north" || sprite.dir === "west"){
+			rx = Math.ceil(sprite.x / size);
+			ry = Math.ceil(sprite.y / size);
+		}else if(sprite.dir === "south" || sprite.dir === "east"){
+			rx = Math.floor(sprite.x / size);
+			ry = Math.floor(sprite.y / size);
 		}
 	
-		//decide if adjacent to person
+		//decide if adjacent to sprite
 		nx = Math.floor(other_pers.x / size);
 		ny = Math.floor(other_pers.y / size);
 
-		if(person.dir == "north" && (rx == nx) && (ry-1 == ny))
+		if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
 			return true;
-		else if(person.dir == "south" && (rx == nx) && (ry+1 == ny))
+		else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
 			return true;
-		else if(person.dir == "east" && (rx+1 == nx) && (ry == ny))
+		else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
 			return true;
-		else if(person.dir == "west" && (rx-1 == nx) && (ry == ny))
+		else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
 			return true;
 }	
 
@@ -329,10 +402,226 @@ function defaultBehavior(npc){
 	}
 }
 
+
+
+///////////////////     COLLISIONS     ////////////////
+
+
+
+//if hit a collision point on the wall
+function hitWall(sprite){
+	if(!level_loaded)
+		return false;
+
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+
+
+	//edge of map = undecided
+	if((sprite.dir === "west" && rx-1 < 0) 
+		|| (sprite.dir === "east" && rx+1 >= cols) 
+			|| (sprite.dir === "north" && ry-1 < 0) 
+				|| (sprite.dir === "east" && ry+1 >= rows))
+		return;
+
+	//decide if adjacent to sprite
+	if(sprite.dir == "north" && inArr(collideTiles, map[ry-1][rx]))
+		return true;
+	else if(sprite.dir == "south" && inArr(collideTiles, map[ry+1][rx]))
+		return true;
+	else if(sprite.dir == "east" && inArr(collideTiles, map[ry][rx+1]))
+		return true;
+	else if(sprite.dir == "west" && inArr(collideTiles, map[ry][rx-1]))
+		return true;
+	else
+		return false;
+}
+
+//if hit another sprite
+function hitNPC(sprite){
+
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	//decide if adjacent to sprite
+	var ouch = false;
+	for(var i=0;i<npcs.length;i++){
+		var n = npcs[i];
+
+		if(n == sprite || !n.show)
+			continue;
+
+		nx = Math.floor(n.x / size);
+		ny = Math.floor(n.y / size);
+
+		if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
+			ouch = true;
+		else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
+			ouch = true;
+		else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
+			ouch = true;
+		else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
+			ouch = true;
+	}
+	return ouch;
+}
+
+//if hit a specific boundary area
+function hitBoundary(sprite, boundary){
+	//boundary in the form [x,y,w,h]
+	if(boundary == null){
+		return false;
+	}
+	
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+	
+
+	//edge of map = undecided
+	if(rx-1 < 0 || rx+1 >= cols || ry-1 < 0 || ry+1 >= cols)
+		return;
+
+	//get bounding box area
+	var xArea = [];
+	for(var z=0;z<boundary.w;z++){
+		xArea.push(boundary.x+z);
+	}
+	var yArea = [];
+	for(var z=0;z<boundary.h;z++){
+		yArea.push(boundary.y+z);
+	}
+
+	//console.log(xArea + "\t" + yArea);
+
+	if(sprite.dir == "north" && (!inArr(xArea, rx) || !inArr(yArea, ry-1)))
+		return true;
+	else if(sprite.dir == "south" && (!inArr(xArea, rx) || !inArr(yArea, ry+1)))
+		return true;
+	else if(sprite.dir == "east" && (!inArr(xArea, rx+1) || !inArr(yArea, ry)))
+		return true;
+	else if(sprite.dir == "west" && (!inArr(xArea, rx-1) || !inArr(yArea, ry)))
+		return true;
+	
+	return false;
+}
+
+function hitItem(sprite){
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	//decide if adjacent to sprite
+	var ouch = false;
+	for(var i=0;i<items.length;i++){
+		var n = items[i];
+
+		if(n == sprite || !n.show)
+			continue;
+
+		nx = Math.floor(n.x / size);
+		ny = Math.floor(n.y / size);
+
+		if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
+			ouch = true;
+		else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
+			ouch = true;
+		else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
+			ouch = true;
+		else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
+			ouch = true;
+	}
+	return ouch;
+}
+
+//if hit another generic object
+function hitOther(sprite, other){
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	//decide if adjacent to sprite
+	var nx = Math.floor(other.x / size);
+	var ny = Math.floor(other.y / size);
+
+	if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
+		return true;
+	else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
+		return true;
+	else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
+		return true;
+	else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
+		return true;
+
+	return false;
+}
+
+function screenEdge(sprite){
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	if(sprite.dir == "north" && (ry-1 < 0))
+		return true;
+	else if(sprite.dir == "south" && (ry+1 == rows))
+		return true;
+	else if(sprite.dir == "east" && (rx+1 == cols))
+		return true;
+	else if(sprite.dir == "west" && (rx-1 < 0))
+		return true;
+
+	return false;
+}
+
 //grouped collision checker
 function collide(sprite, boundary=null){
-	return false;
-	//return hitNPC(sprite) || hitItem(sprite) || hitWall(sprite) || hitBoundary(sprite, boundary)
+	//return false;
+	return hitNPC(sprite) || hitWall(sprite) || hitItem(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
 }
 
 
@@ -341,7 +630,7 @@ function collide(sprite, boundary=null){
 
 //if within the game bounds
 function withinBounds(x,y){
-	var xBound = (x >= Math.floor(camera.x / 16) - 1) && (x <= Math.floor(camera.x / 16) + (canvas.width / 16));
+	var xBound = (x >= Math.floor(camera.x / story.size) - 1) && (x <= Math.floor(camera.x / story.size) + (canvas.width / story.size));
 	return xBound;
 }
 
@@ -482,12 +771,17 @@ function checkRender(){
 		}
 	}
 
-	/*
-	//gui
+	
+	//dialogue
 	if(!dialogReady){
 		dialogIMG.onload = function(){dialogReady = true;};
 	}
-	*/
+
+	//gui bars
+	if(!energyReady){projectBarIMG.onload = function(){projectBarReady = true;};}
+	if(!teamBarReady){teamBarIMG.onload = function(){teamBarReady = true;};}
+	if(!energyBarIMG){energyBarIMG.onload = function(){energyReady = true;};}
+	if(!fillerReady){fillerBarIMG.onload = function(){fillerReady = true;};}
 }
 
 
@@ -556,6 +850,31 @@ function rendersprite(sprite){
 	}
 }
 
+function renderItem(item){
+	ctx.drawImage(item.img, item.x, item.y);
+}
+
+function drawBars(){
+
+	//background gui
+	ctx2.drawImage(projectBarIMG, 2, 4);
+	ctx2.drawImage(energyBarIMG, 96, 4);
+	ctx2.drawImage(teamBarIMG, 190, 4);
+
+	//health bar gui
+	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 8, 36, (team.projectProg/100) * 88, 12);
+	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 102, 36, (team.caffeine/100) * 88, 12);
+
+	//team stats gui
+	ctx2.fillStyle = "#ff0000";
+	ctx2.fillText(team.teamSkill[0], 196, 46);
+	ctx2.fillText(team.teamSkill[1], 216, 46);
+	ctx2.fillText(team.teamSkill[2], 236, 46);
+	ctx2.fillText(team.teamSkill[3], 250, 46);
+	ctx2.fillText(team.teamSkill[4], 272, 46);
+}
+
+
 //render everything 
 function render(){
 	checkRender();
@@ -571,27 +890,28 @@ function render(){
 	ctx.fillStyle = ptrn;
 	ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 	
+	//draw hack are
+	ctx.drawImage(hackAreaPNG, 0, 32);
+
 	//draw the map
 	//drawMap();
 
 	//draw the buildings if behind player
 
 	for(var i=0;i<items.length;i++){
-		if(items[i].thru)
-			renderItem(items[i]);
+		renderItem(items[i]);
 	}
 
 	//if npc behind player
 	for(var c=0;c<npcs.length;c++){
-		if(player.y >= npcs[c].y)
-			drawsprite(npcs[c]);
+		drawchar(npcs[c]);
 	}
 
 	//draw player
 	drawchar(player);
 
 	//gui
-	//drawGUI();
+	drawGUI();
 
 
 	//if(story.area === "vals")
@@ -600,6 +920,184 @@ function render(){
 	ctx.restore();
 	// requestAnimationFrame(render);
 
+}
+
+function drawGUI(){
+	drawDialog();
+	drawBars();
+}
+
+
+////////////////////   DIALOGUE     ///////////////////
+
+//show dialog gui
+function drawDialog(){
+	var dialogue = story.dialogue;
+	var choice = story.choice_box;
+	if(dialogue.show && dialogReady){
+		ctx.drawImage(dialogIMG, camera.x, camera.y);
+		//wrapText(dialogue.text[dialogue.index], camera.x + 12, camera.y + 116)
+		showText();
+
+		/*
+		if(choice.show){
+			//choice boxes
+			for(var c=0;c<choice.options.length;c++){
+				var cx = camera.x+6;
+				var cy = camera.y+95+(-11*(c+1));
+				ctx.drawImage(optionIMG, cx, cy);
+				ctx.font = "6px Gameboy";
+				ctx.fillText(choice.options[choice.options.length-(c+1)], cx+4, cy+9);
+			}
+
+			//select
+			ctx.drawImage(selectIMG, camera.x+6, camera.y+95+(11*(choice.index-choice.options.length)));
+		}
+		*/
+
+		
+		if(choice.show){
+			//get the maximum x length
+			var longest = 10;
+			if(!hasMultiLine()){
+				longest = bigChoice(choice.options);
+			}
+
+			//choice boxes
+			var cx = camera.x+3;
+			for(var c=0;c<choice.options.length;c++){
+				var cy = camera.y+95+(-((optionIMG.height-2)/2)*(sumLines(c)));
+
+				//var cy = camera.y+95+(-(optionIMG.height-1)*((sumLines(c)*11)+1));
+				ctx.drawImage(optionIMG, 0,0, optionIMG.width, optionIMG.height, 
+								cx, cy, (longest/10)*(optionIMG.width), (choice.lines[c]/2)*optionIMG.height);
+				choiceText(choice.options[c], choice.lines[c], cy+9);
+
+				//ctx.font = "6px Gameboy";
+				//ctx.fillText(choice.options[choice.options.length-(c+1)], cx+4, cy+9);
+			}
+
+			//select
+			var cy2 = camera.y+95-((optionIMG.height-2)/2)*(sumLines(choice.index));
+			//((((optionIMG.height-2)/2)*(sumLines(choice.index)))*(choice.index-choice.options.length)), 
+
+			ctx.drawImage(selectIMG, 0,0, selectIMG.width, selectIMG.height, 
+								cx, cy2,
+								(longest/10)*(selectIMG.width), (choice.lines[choice.index]/2)*selectIMG.height);
+		}
+		
+	}
+}
+
+//find the longest line of text
+function bigChoice(arr){
+	var longest = 0;
+	for(var i=0;i<arr.length;i++){
+		longest = (arr[i].length > longest ? arr[i].length : longest);
+	}
+	return longest+1;
+}
+
+//wrap the text if overflowing on the choice box
+function choiceText(text, lines, y) {
+	var texts = text.split(" | ");
+	ctx.font = "14px Courier";
+	for(var l=0;l<lines;l++){
+		ctx.fillText(texts[l], camera.x+7, y+(l*9));
+	}
+}	
+
+//
+function sumLines(i){
+	var lines = story.choice_box.lines;
+	var sum = 0;
+	for(var l=i;l<lines.length;l++){
+		sum += lines[l];
+	}
+	return sum;
+}
+
+function hasMultiLine(){
+	for(var l=0;l<story.choice_box.lines.length;l++){
+		if(story.choice_box.lines[l] > 1)
+			return true;
+	}
+	return false;
+}
+
+//typewriter functions
+var tw = 0;
+var curLine = 0;						//current line index
+var curText = "";
+var text_speed = 85;
+var text_time = 0;					//typewriter effect
+var texting = false;				//currently typing
+var lineTexts = ["", ""];		//the two lines that can be shown on screen
+var maxWidth = 140;
+var lineHeight = 32;
+var jump = -1;
+
+function typewrite(){	
+
+	//pre-processing and reset
+	if(!texting){
+		curText = story.dialogue.text[story.dialogue.index];		//set the text to the NPC or item text 
+		if(!curText)
+			return;
+
+		//check if section jump
+		if(jump == -1){
+			var jumper = curText.match(/<[0-9]+>/g);
+			if(jumper){
+				curText = curText.replace(/<[0-9]+>/g, "");
+				jump = parseInt(jumper[0].replace(/[<>]/g, ""));
+			}
+		}
+		curText = curText.replace(/<[0-9]+>/g, "");		//catch the stragler
+		tw = 0;
+		//console.log("restart")
+		curLine = 0;
+		clearText();
+		ctx.font = "16px Courier";
+		ctx.fillStyle = "#000000";
+		texting = true;
+	}
+	if(tw < curText.length){
+		//if at a new line reset
+		if(curText[tw] === "|"){
+			tw++;
+			curLine++;
+			if(curLine > 1){
+				lineTexts[0] = lineTexts[1];
+				lineTexts[1] = "";
+			}
+		}
+		//append letters
+		else{
+			if(curLine == 0)
+				lineTexts[0] += curText[tw];
+			else
+				lineTexts[1] += curText[tw];
+		}
+		text_time = setTimeout(typewrite, text_speed);
+		tw++;
+	}else{
+		texting = false;
+		clearTimeout(text_time);
+		//console.log("done");
+	}
+}
+
+function clearText(){
+	lineTexts[0] = "";
+	lineTexts[1] = "";
+	clearTimeout(text_time);
+}
+
+function showText(){
+	ctx.fillStyle = "#000000";
+	ctx.fillText(lineTexts[0], camera.x + 16, camera.y + 172);
+	ctx.fillText(lineTexts[1], camera.x + 16, camera.y + 172 + lineHeight);
 }
 
 
@@ -718,7 +1216,7 @@ function actionKeys(){
 				reInteract = false;
 				player.other = npcs[i];
 				player.other.interact = true;
-				faceOpposite(player.other);
+				//faceOpposite(player.other);
 				player.interact = true;
 				clearInterval(npcs[i].wt);
 				npcs[i].wt = 0;
@@ -792,8 +1290,99 @@ function normal_game_action(){
 
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
-function init(){
+function makeHackers(){
+	var mac = new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]);
+	var sonia = new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]);
+	var nick = new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]);
+	var anthony = new hacker("Anthony", 13, 11, "design", [0, 0, 20, 0, 0]);
+	var belle = new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]);
+	var troy = new hacker("Troy", 10, 4, "jack", [5,5,5,5,5]);
 
+	hackers.push(mac);
+	hackers.push(sonia);
+	hackers.push(nick);
+	hackers.push(anthony);
+	hackers.push(belle);
+	hackers.push(troy);
+
+	npcs.push.apply(npcs, hackers);
+}
+
+function init(){
+	map = [
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
+			[0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],
+			[0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0],
+			[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+			];
+	level_loaded = true;
+	makeHackers();
+	story.player = player;
+
+	var squad = [];
+	for(var h=0;h<hackers.length;h++){
+		if(squad.length < 3){
+			var pickMe = Math.floor(Math.random()*2);
+			if(pickMe == 0){
+				squad.push(hackers[h]);
+			}
+		}
+	}
+	hack(squad);
+}
+
+function startGame(){
+	story.quest = "Register";
+	story.trigger = "start_game";
+	player.x = 12*story.size;
+	player.y = 1*story.size;
+	resetCamera();
+}
+
+function makeTeamScene(){
+	//reset positions
+	hackers[0].x = 1; hackers[0].y = 2;
+	hackers[1].x = 3; hackers[1].y = 5;
+	hackers[2].x = 15; hackers[2].y = 8;
+	hackers[3].x = 8; hackers[3].y = 10;
+	hackers[4].x = 13; hackers[4].y = 5;
+	hackers[5].x = 7; hackers[5].y = 8;
+
+	//set boundaries
+	hackers[0].boundary = new boundArea(1,2,3,1);  // mac
+	hackers[1].boundary = new boundArea(1,5,3,1);  // sonia
+	hackers[2].boundary = new boundArea(13,8,3,1);  // nick
+	hackers[3].boundary = new boundArea(7,10,3,1);  // anthony
+	hackers[4].boundary = new boundArea(13,5,3,1);  // belle
+	hackers[5].boundary = new boundArea(7,8,3,1);  // troy
+}
+
+
+function calculateSkills(){
+	for(var i=0;i<team.members.length;i++){
+		for(var s=0;s<5;s++){
+			team.teamSkill[s] += team.members[i].skillSet[s];
+		}
+	}
+}
+function hack(members){
+	team.members = members;
+	calculateSkills();
+	for(var m=0;m<members.length;m++){
+		members[m].show = true;
+		members[m].x = 224 + 32*m;
+		members[m].y = 256;
+		members[m].move = "code";
+	}
 }
 
 function main(){
@@ -801,9 +1390,17 @@ function main(){
 	canvas.focus();
 	render();
 
+	play();
+
 	//player movement
-	if(!story.pause)
+	var pixX = Math.round(player.x / size);
+	var pixY = Math.round(player.y / size);
+
+	if(!story.pause){
 		travel(player);
+		if(player.action == "travel")
+			story.trigger = "x"+pixX+"_y"+pixY;
+	}
 
 	panCamera();
 
@@ -813,6 +1410,16 @@ function main(){
 			var npc = npcs[n];
 			travel(npc);
 			defaultBehavior(npc);
+		}
+	}
+
+	//dialogue
+	if(!story.cutscene){
+		if(player.interact){
+			story.dialogue.show = true;
+		}else{
+			story.dialogue.show = false;
+			clearText();
 		}
 	}
 
@@ -827,6 +1434,14 @@ function main(){
 	}
 	moveKeys();
 	actionKeys();
+
+	///////////////    DEBUG   //////////////////
+
+	var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
+	settings += " --- Pix X: " + pixX + " | Pix Y: " + pixY;
+	settings += " --- " + story.trigger;
+	document.getElementById('debug').innerHTML = settings;
+
 }
 
 /*
