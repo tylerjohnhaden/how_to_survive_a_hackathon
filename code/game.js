@@ -1560,14 +1560,14 @@ function init(){
 	var playerName = prompt("Enter your name");
 
 	//set the timers
-	energyClock = setInterval(function(){team.energy -=1;}, 5000);
+	energyClock = setInterval(function(){team.energy -= (team.members.length);}, 5000);
 	hackClock = setInterval(function(){timeLeft -= 1;}, 1000);
 
 	projInc = Math.floor(team.teamSkill[Math.floor(Math.random()*5)]/10) + (Math.floor(team.energy/10)-3);
 	projectClock = setInterval(function(){
 		team.projectProg += (projInc);
 		projInc = Math.floor(team.teamSkill[Math.floor(Math.random()*5)]/10) + (Math.floor(team.energy/10)-3)
-		console.log("heya: " + projInc);
+		console.log("project increase by: " + projInc);
 	}, 7000)
 
 
@@ -1705,12 +1705,12 @@ function main(){
 	actionKeys();
 
 	///////////////    DEBUG   //////////////////
-
+	/*
 	var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
 	settings += " --- Pix X: " + pixX + " | Pix Y: " + pixY;
 	settings += " --- " + story.trigger;
 	document.getElementById('debug').innerHTML = settings;
-
+	*/
 }
 
 /*
