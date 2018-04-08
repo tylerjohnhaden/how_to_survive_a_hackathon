@@ -22,12 +22,20 @@ function getIMGNPC(name){
 
 }
 
-function hacker(name, x, y, classType, XP){
+function skill(dep, dev, des, deb, res){
+	this.deploy = dep;
+	this.develop = dev;
+	this.design = des;
+	this.debug = deb;
+	this.research = res;
+}
+
+function hacker(name, x, y, classType, skillSet){
 	this.name = name;
-	this.x = x;
-	this.y = y;
+	this.x = x*story.size;
+	this.y = y*story.size;
 	this.classType = classType;
-	this.XP = XP;
+	this.skillSet = skillSet;
 
 	this.width = 16;
 	this.height = 16;
@@ -36,7 +44,7 @@ function hacker(name, x, y, classType, XP){
 	this.moving = false;
 
 	//other properties
-	this.text = ["Hi! Welcome to the Hackathon!"];
+	this.text = ["Hi! My name is " + name + "!", "I'm a " + classType + "<0>"];
 	this.text_index = 0;
 	this.interact = false;
 
