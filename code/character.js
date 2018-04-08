@@ -76,7 +76,7 @@ function npc(x, y, text, skin){
  	this.velY = 0;
 
 	//other properties
-	this.text = ["I AM ERROR"];
+	this.text = text;
 	this.text_index = 0;
 	this.interact = false;
 	this.move = "drunk_walk";

@@ -152,9 +152,8 @@ var player = {
 
 var team = {
 	members : [],
-	morality : 100,
 	projectProg : 0,
-	caffeine : 50,
+	energy : 50,
 	challenges : [],
 	teamSkill : [0,0,0,0,0],
 }
@@ -169,11 +168,71 @@ var project = {
 	img : projectIMG,
 	ready : projectReady,
 	show : true,
-	text : ["i7c7btb [i kuf", "function(0iuf) {}"],
+	text : ["4d 49 4c 4b"],
 	text_index : 0,
-	area : new boundArea(8, 10, 1, 1)
+	area : null
 }
 items.push(project);
+
+var coffeeIMG = new Image();
+coffeeIMG.src = '../sprites/coffee.png';
+var coffeeReady = false;
+coffeeIMG.onload = function(){coffeeReady = true;};
+var coffee = {
+	x : 128,
+	y : 32,
+	img : coffeeIMG,
+	ready : coffeeReady,
+	show : true,
+	text : ["COFFEE!"],
+	text_index : 0,
+	area : null
+}
+
+var redbullIMG = new Image();
+redbullIMG.src = '../sprites/redbull.png';
+var redbullReady = false;
+redbullIMG.onload = function(){redbullReady = true;};
+var redbull = {
+	x : 512,
+	y : 192,
+	img : redbullIMG,
+	ready : redbullReady,
+	show : true,
+	text : ["RED BULL!"],
+	text_index : 0,
+	area : null
+}
+
+var wifiIMG = new Image();
+wifiIMG.src = '../sprites/wifi.png';
+var wifiReady = false;
+wifiIMG.onload = function(){wifiReady = true;};
+var wifi = {
+	x : 512,
+	y : 32,
+	img : wifiIMG,
+	ready : wifiReady,
+	show : true,
+	text : ["WIFI!"],
+	text_index : 0,
+	area : null
+}
+
+var floppyIMG = new Image();
+floppyIMG.src = '../sprites/floppy.png';
+var floppyReady = false;
+floppyIMG.onload = function(){floppyReady = true;};
+var floppy = {
+	x : 384,
+	y : 32,
+	img : floppyIMG,
+	ready : floppyReady,
+	show : true,
+	text : ["UPGRADE!"],
+	text_index : 0,
+	area : null
+}
 
 
 var hackers = [];
@@ -181,6 +240,12 @@ var spectators = [];
 var organizers = [];
 var sponsors = [];
 
+var energies = [];
+energies.push(coffee);energies.push(redbull);
+var questies = [];
+questies.push(wifi);questies.push(floppy);
+items.push.apply(items, energies);
+items.push.apply(items, questies);
 
 /////////////////     GENERIC FUNCTIONS   ///////////
 
@@ -910,7 +975,7 @@ function drawBars(){
 
 	//health bar gui
 	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 8, 36, (team.projectProg/100) * 88, 12);
-	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 102, 36, (team.caffeine/100) * 88, 12);
+	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 102, 36, (team.energy/100) * 88, 12);
 
 	//team stats gui
 	ctx2.fillStyle = "#ff0000";
@@ -1368,10 +1433,17 @@ function makeHackArea(){
 	project.show = false;
 
 
-	var organizer = new npc(8, 2, ["Hey there!"], "organizer");
+	var organizer = new npc(8, 2, ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "organizer");
 	organizer.name = "organizer";
 	organizer.move = "none";
+	organizers.push(organizer)
 	npcs.push(organizer);
+
+	var sponsor = new npc(2, 8, ["Happy hacking!"], "sponsor");
+	sponsor.name = "sponsor";
+	sponsor.move = "none";
+	sponsors.push(sponsor);
+	npcs.push(sponsor);
 }
 
 function makeHallArea(){
@@ -1405,6 +1477,14 @@ function makeHackers(){
 	var belle = new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]);
 	var troy = new hacker("Troy", 10, 4, "jack", [5,5,5,5,5]);
 
+	mac.text[1] = "I'm a deployer - I market | the code and software";
+	sonia.text[1] = "I debug the code for errors";
+	nick.text[1] = "I write and develop the | code";
+	anthony.text[1] = "I design the architecture | of the code";
+	belle.text[1] = "I research the problem | using information online";
+	troy.text[1] = "I'm like a | jack-of-all-trades | -  I'm good at a lot of | different things!";
+
+
 	hackers.push(mac);
 	hackers.push(sonia);
 	hackers.push(nick);
@@ -1437,6 +1517,16 @@ function makeSpectators(){
 	npcs.push.apply(npcs, spectators);
 }
 
+function makeEnergy(){
+	energies = [];
+
+}
+
+
+var hackClock = 0;
+var timeLeft = 2160;
+var energyClock = 0;
+var projectClock = 0;
 
 function init(){
 	player.show = false;
@@ -1445,13 +1535,19 @@ function init(){
 
 	var playerName = prompt("Enter your name");
 
-	//makeHackArea();
-	makeHallArea();
+	//set the timers
+	energyClock = setInterval(function(){team.energy -=1;}, 5000);
+	hackClock = setInterval(function(){timeLeft -= 1;}, 1000);
+
+
+	makeHackArea();
+	//makeHallArea();
 	story.player = player;
 	story.team = team;
 	story.player.name = playerName;
 	player.show = true;
-	startGame();
+	//startGame();
+	demoTeam();
 }
 
 function startGame(){
@@ -1463,12 +1559,12 @@ function startGame(){
 
 function makeTeamScene(){
 	//reset positions
-	hackers[0].x = 1; hackers[0].y = 2;
-	hackers[1].x = 3; hackers[1].y = 5;
-	hackers[2].x = 15; hackers[2].y = 8;
-	hackers[3].x = 8; hackers[3].y = 10;
-	hackers[4].x = 13; hackers[4].y = 5;
-	hackers[5].x = 7; hackers[5].y = 8;
+	hackers[0].x = 1*story.size; hackers[0].y = 2*story.size;
+	hackers[1].x = 3*story.size; hackers[1].y = 5*story.size;
+	hackers[2].x = 15*story.size; hackers[2].y = 8*story.size;
+	hackers[3].x = 8*story.size; hackers[3].y = 10*story.size;
+	hackers[4].x = 13*story.size; hackers[4].y = 5*story.size;
+	hackers[5].x = 7*story.size; hackers[5].y = 8*story.size;
 
 	//set boundaries
 	hackers[0].boundary = new boundArea(1,2,3,1);  // mac
@@ -1479,7 +1575,7 @@ function makeTeamScene(){
 	hackers[5].boundary = new boundArea(7,8,3,1);  // troy
 }
 
-function testTeam(){
+function demoTeam(){
 	var squad = [];
 	for(var h=0;h<hackers.length;h++){
 		if(squad.length < 3){
@@ -1501,6 +1597,7 @@ function calculateSkills(){
 	}
 }
 function hack(members){
+	makeTeamScene();
 	team.members = members;
 	calculateSkills();
 	for(var m=0;m<members.length;m++){
@@ -1508,7 +1605,9 @@ function hack(members){
 		members[m].x = 224 + 32*m;
 		members[m].y = 256;
 		members[m].move = "code";
+		members[m].text.push("Let's build a chatbot, | " + player.name + "!");
 	}
+	project.show = true;
 }
 
 function main(){
