@@ -52,6 +52,12 @@ var story = {
 function triggerWord(word){
 	if(story.quest === "Register")
 		return true;
+	else if(story.quest === "Demo"){
+		if(word.match(/touch*/g))
+			return true;
+		else
+			return false;
+	}
 	else if(story.quest === "Small Talk")
 		return true;
 	else
@@ -117,7 +123,54 @@ function play(){
 	}
 
 
-if(story.quest === "Register"){
+if(story.quest === "Demo"){
+	if(trigger === "touch_floppy"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["You got the floppy disk!", "Your overall team skill | has improved!"]);
+
+		}else if(taskIndex == 1){
+			for(var t=0;t<5;t++){
+				story.team.teamSkill[t]+=5;
+			}
+			story.storyFunct[2](player.other);
+			endScene();
+		}
+	}else if(trigger === "touch_wifi"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["You found the wifi!", "Your project is 2% more | done!"]);
+
+		}else if(taskIndex == 1){
+			story.projectProg += 2;
+			story.storyFunct[2](player.other);
+			endScene();
+		}
+	}
+	else if(trigger === "touch_coffee"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["You got the coffee!", "Your team's energy | increased by 10!"]);
+
+		}else if(taskIndex == 1){
+			story.team.energy+=10;
+			story.storyFunct[2](player.other);
+			endScene();
+		}
+	}else if(trigger === "touch_redbull"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["You got the Red Bull!", "Your team's energy | increased by 15!"]);
+
+		}else if(taskIndex == 1){
+			story.team.energy+=15;
+			story.storyFunct[2](player.other);
+			endScene();
+		}
+	}
+}
+
+else if(story.quest === "Register"){
 
 	if(trigger === "start_game"){
 		story.cutscene = true;

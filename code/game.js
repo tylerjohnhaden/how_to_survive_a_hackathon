@@ -441,7 +441,7 @@ function canInteract(sprite, item){
 		else if(sprite.dir === "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
 			return true;
 
-		console.log(sprite.dir + " " + xArea + " " + yArea);
+		//console.log(sprite.dir + " " + xArea + " " + yArea);
 	
 	return false;
 }
@@ -1550,10 +1550,11 @@ var hackClock = 0;
 var timeLeft = 2160;
 var energyClock = 0;
 var projectClock = 0;
+var projInc = 0;
 
 function init(){
 	player.show = false;
-	var activations = [makeHallArea, makeHackArea];
+	var activations = [makeHallArea, makeHackArea, randomPosition];
 	story.storyFunct = activations;
 
 	var playerName = prompt("Enter your name");
@@ -1562,13 +1563,22 @@ function init(){
 	energyClock = setInterval(function(){team.energy -=1;}, 5000);
 	hackClock = setInterval(function(){timeLeft -= 1;}, 1000);
 
+	projInc = Math.floor(team.teamSkill[Math.floor(Math.random()*5)]/10) + (Math.floor(team.energy/10)-3);
+	projectClock = setInterval(function(){
+		team.projectProg += (projInc);
+		projInc = Math.floor(team.teamSkill[Math.floor(Math.random()*5)]/10) + (Math.floor(team.energy/10)-3)
+		console.log("heya: " + projInc);
+	}, 7000)
+
 
 	makeHackArea();
 	//makeHallArea();
 	story.player = player;
 	story.team = team;
 	story.player.name = playerName;
-	player.show = true;
+	player.show = true
+
+	story.quest = "Demo";
 	//startGame();
 	demoTeam();
 }
@@ -1585,17 +1595,17 @@ function makeTeamScene(){
 	hackers[0].x = 1*story.size; hackers[0].y = 2*story.size;
 	hackers[1].x = 3*story.size; hackers[1].y = 5*story.size;
 	hackers[2].x = 15*story.size; hackers[2].y = 8*story.size;
-	hackers[3].x = 8*story.size; hackers[3].y = 10*story.size;
+	hackers[3].x = 1*story.size; hackers[3].y = 4*story.size;
 	hackers[4].x = 13*story.size; hackers[4].y = 5*story.size;
-	hackers[5].x = 7*story.size; hackers[5].y = 8*story.size;
+	hackers[5].x = 15*story.size; hackers[5].y = 10*story.size;
 
 	//set boundaries
 	hackers[0].boundary = new boundArea(1,2,3,1);  // mac
 	hackers[1].boundary = new boundArea(1,5,3,1);  // sonia
 	hackers[2].boundary = new boundArea(13,8,3,1);  // nick
-	hackers[3].boundary = new boundArea(7,10,3,1);  // anthony
+	hackers[3].boundary = new boundArea(1,4,3,1);  // anthony
 	hackers[4].boundary = new boundArea(13,5,3,1);  // belle
-	hackers[5].boundary = new boundArea(7,8,3,1);  // troy
+	hackers[5].boundary = new boundArea(13,10,3,1);  // troy
 }
 
 function demoTeam(){
@@ -1609,6 +1619,17 @@ function demoTeam(){
 		}
 	}
 	hack(squad);
+}
+
+function randomPosition(item){
+	var x = Math.floor(Math.random()*cols);
+	var y = Math.floor(Math.random()*rows);
+	while(!goodSpot(x,y)){
+		x = Math.floor(Math.random()*cols);
+		y = Math.floor(Math.random()*rows);
+	}
+	item.x = x*story.size;
+	item.y = y*story.size;
 }
 
 
