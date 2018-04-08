@@ -1565,7 +1565,7 @@ function init(){
 
 	projInc = Math.floor(team.teamSkill[Math.floor(Math.random()*5)]/10) + (Math.floor(team.energy/10)-3);
 	projectClock = setInterval(function(){
-		team.projectProg += (projInc);
+		team.projectProg += (projInc > 0 ? projInc : 0);
 		projInc = Math.floor(team.teamSkill[Math.floor(Math.random()*5)]/10) + (Math.floor(team.energy/10)-3)
 		console.log("project increase by: " + projInc);
 	}, 7000)
@@ -1654,6 +1654,8 @@ function hack(members){
 	project.show = true;
 }
 
+var test = "no";
+
 function main(){
 	requestAnimationFrame(main);
 	canvas.focus();
@@ -1704,6 +1706,16 @@ function main(){
 	moveKeys();
 	actionKeys();
 
+
+	if(team.energy <= 0 && !stopped){
+		window.alert("RAN OUT OF ENERGY! GAME OVER");
+		stopGame();
+	}else if(team.projectProg >= 100 && !stopped){
+		window.alert("CONGRATS! YOU FINISHED YOUR PROJECT!");
+		stopGame();
+	}
+
+
 	///////////////    DEBUG   //////////////////
 	/*
 	var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
@@ -1711,6 +1723,15 @@ function main(){
 	settings += " --- " + story.trigger;
 	document.getElementById('debug').innerHTML = settings;
 	*/
+}
+
+var stopped = false;
+function stopGame(){
+	clearInterval(energyClock);
+	clearInterval(projectClock);
+	story.pause = true;
+	clearInterval(hackClock);
+	stopped = true;
 }
 
 /*
