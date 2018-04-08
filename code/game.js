@@ -163,6 +163,7 @@ projectIMG.src = "../sprites/project.png";
 var projectReady = false;
 projectIMG.onload = function(){projectReady = true;};
 var project = {
+	name : "project",
 	x : 256,
 	y : 288,
 	img : projectIMG,
@@ -179,6 +180,7 @@ coffeeIMG.src = '../sprites/coffee.png';
 var coffeeReady = false;
 coffeeIMG.onload = function(){coffeeReady = true;};
 var coffee = {
+	name : "coffee",
 	x : 128,
 	y : 32,
 	img : coffeeIMG,
@@ -194,6 +196,7 @@ redbullIMG.src = '../sprites/redbull.png';
 var redbullReady = false;
 redbullIMG.onload = function(){redbullReady = true;};
 var redbull = {
+	name : "redbull",
 	x : 512,
 	y : 192,
 	img : redbullIMG,
@@ -209,6 +212,7 @@ wifiIMG.src = '../sprites/wifi.png';
 var wifiReady = false;
 wifiIMG.onload = function(){wifiReady = true;};
 var wifi = {
+	name : "wifi",
 	x : 512,
 	y : 32,
 	img : wifiIMG,
@@ -224,6 +228,7 @@ floppyIMG.src = '../sprites/floppy.png';
 var floppyReady = false;
 floppyIMG.onload = function(){floppyReady = true;};
 var floppy = {
+	name : "floppy",
 	x : 384,
 	y : 32,
 	img : floppyIMG,
@@ -232,6 +237,22 @@ var floppy = {
 	text : ["UPGRADE!"],
 	text_index : 0,
 	area : null
+}
+
+var invisibleIMG = new Image();
+invisibleIMG.src = '../sprites/invisible.png';
+var invisibleReady = false;
+invisibleIMG.onload = function(){invisibleReady = true;};
+function invisItem(name, x, y, text){
+	this.name = name;
+	this.x = x;
+	this.y = y;
+	this.text = text;
+	this.img = invisibleIMG;
+	this.ready = invisibleReady;
+	this.show = true;
+	this.text_index = 0;
+	this.area = null;
 }
 
 
@@ -406,20 +427,21 @@ function canInteract(sprite, item){
 				yArea.push(t_ba.y+t.y+z);
 			}
 		}else{
-			xArea.push(t.x);
-			yArea.push(t.y);
+			xArea.push(Math.ceil(t.x / size));
+			yArea.push(Math.ceil(t.y / size));
 		}
-		
 
 		//determine if able to interact
-		if(sprite.dir == "north" && (inArr(xArea, rx) && inArr(yArea, ry-1)))
+		if(sprite.dir === "north" && (inArr(xArea, rx) && inArr(yArea, ry-1)))
 			return true;
-		else if(sprite.dir == "south" && (inArr(xArea, rx) && inArr(yArea, ry+1)))
+		else if(sprite.dir === "south" && (inArr(xArea, rx) && inArr(yArea, ry+1)))
 			return true;
-		else if(sprite.dir == "east" && (inArr(xArea, rx+1) && inArr(yArea, ry)))
+		else if(sprite.dir === "east" && (inArr(xArea, rx+1) && inArr(yArea, ry)))
 			return true;
-		else if(sprite.dir == "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
+		else if(sprite.dir === "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
 			return true;
+
+		console.log(sprite.dir + " " + xArea + " " + yArea);
 	
 	return false;
 }
@@ -1306,6 +1328,7 @@ function actionKeys(){
 	if(keys[a_key] && !player.interact && !player.moving && normal_game_action()){
 		for(var i=0;i<items.length;i++){
 			if(canInteract(player, items[i]) && items[i].text){
+
 				story.trigger = "touch_" + items[i].name;
 				reInteract = false;
 				player.other = items[i];
