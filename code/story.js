@@ -1,6 +1,9 @@
 var story = {
 	//character stats
 	player : null,
+	team : null,
+
+	storyFunct : [],
 
 	//level data
 	size : 32,
@@ -13,6 +16,7 @@ var story = {
 	taskIndex : 0,
 	trigger : "none",
 	cutscene : false,
+	scene : "hall",
 
 	//dialogue
 	dialogue : {
@@ -47,6 +51,8 @@ var story = {
 
 function triggerWord(word){
 	if(story.quest === "Register")
+		return true;
+	else if(story.quest === "Small Talk")
 		return true;
 	else
 		return false;
@@ -108,7 +114,6 @@ function play(){
 	var player;
 	if(story.player){
 		player = story.player;
-		questItem = player.tradeItem;
 	}
 
 
@@ -118,54 +123,171 @@ if(story.quest === "Register"){
 		story.cutscene = true;
 		story.player.other = story.pseudoOther;
 		if(taskIndex == 0){
-			newDialog(["...","Hacker: Wow! This gym is | huge!",
+			newDialog(["...",player.name + ": Wow! This gym is | huge!",
 				"I can't wait to see | what swag they have to | offer!"])
 		}else if(taskIndex == 1){
 			endScene();	
 		}
 	}
 
-	if(trigger.match(/x[0-9]+_y4/) && dialogue.threshold == 0){
+	if(trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && story.scene === "hall"){
+		story.storyFunct[1]();
+
+	}
+	if(trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && story.scene === "main"){
 		story.cutscene = true;
-		console.log("Activate!");
 		if(taskIndex == 0){
-			newDialog(["Hacker: There's so many | people...",
+			newDialog(["...", player.name + ": There's so many | people...",
 					"Where do I check in?",
-					"I guess I should follow the | crowd."]);
+					"I guess I should look | for a staff member."]);
+
+		}else{
+			
+			endScene();
+			dialogue.threshold++;
+		}
+	}
+
+
+	if(trigger === "talk_organizer"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			var playerName = story.player.name;
+			newDialog([player.name + ": Hey. I am here for | the hackathon.",
+				"Clerk: Thanks for coming! | Would you like some swag to | start off?",
+				"Swag helps increase your| energy and so does | interacting with people.",
+				player.name + ": Sure thanks!",
+				"(Energy boosted by 10!)",
+				"Clerk: May I have your name | so we can check you in?",
+				player.name + ": Sure, my name is | " + playerName,
+				"Clerk: Alrighty, " + playerName + ", | you are set to go.",
+				"The opening ceremony will | begin in about 15 minutes.",
+				"It will be located at the | pavillion which by the | center stage.",
+				"In the meantime, try | talking to some people | and don't forget to grab | your swag!"]);
+		}else if(taskIndex == 1){
+			story.team.energy += 10;
+			story.quest = "Small Talk";
+			dialogue.threshold = 0;
+			endScene();
+		}
+	}
+
+}
+else if(story.quest === "Small Talk"){
+
+	//talk to random npcs
+	if(trigger === "talk_???"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			if(dialogue.threshold % 3 == 0){
+				newDialog(["???: I feel so jittery~! | Do I have wings yet?",
+				"You can regain energy by | getting a sweet dose | of caffiene.",
+				"Redbull is my favorite!",
+				"You can also try | sleeping and eating | caffiene packed chocolate | bars.",
+				player.name + ": (Jeez is everyone | like this?)"]);
+			}else if(dialogue.threshold % 3 == 1){
+				newDialog(["???: I am so | excited to impress the | judges.",
+				"I heard the prizes | include internships and | gaming consoles.",
+				"Doesn't that sound | like an awesome combination?"]);
+			}else if(dialogue.threshold % 3 == 2){
+				newDialog(["???: Hey did you hear about | that one company's | challenge?",
+				"They want the hackers | to create something unique!",
+				"Sounds fun doesn't it? | That can be anything!"]);
+			}
+		}else if(taskIndex == 1){
+			endScene();
+			dialogue.threshold++;
+		}
+	}
+
+	//announcement after 3 talks
+	else if(trigger.match(/x[0-9]+_y[0-9]+/g) && dialogue.threshold == 3){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["!!!!", "Staff: Hello hackers! | Just a quick announcement.",
+						"The hackathon will begin | shortly so start picking | members for your team.",
+						"You can only have four | members in a team.",
+						"Talk to fellow hackers | They will have information | about their skills."])
 		}else if(taskIndex == 1){
 			dialogue.threshold++;
 			endScene();
 		}
 	}
 
-	if(trigger === "talk_organizer"){
+	//talk to hackers
+	else if(trigger === "talk_Mac"){
 		story.cutscene = true;
 		if(taskIndex == 0){
-			newDialog(["Hacker: Hey. I am here for | the hackathon.",
-				"Clerk: Thanks for coming! | Would you like some swag to start | off?",
-				"Swag helps increase your energy | and so does interacting with | people.",
-				"Hacker: Sure thanks!",
-				"(Energy boosted by 10!)",
-				"Clerk: May I have your name | so we can check you in?"]);
+			newDialog(["Mac: I really like | release the final product.",
+				"Marketing is one of | my strong suits."])
 		}else if(taskIndex == 1){
-			var playerName = prompt("What is your name?", "Player");
-			while(playerName == null || playerName == ""){
-				playerName = prompt("What is your name?", "Player");
-			}
-			story.player.name = playerName;
-			newDialog(["Hacker: Sure, my name is " + playerName,
-				"Clerk: Alrighty" + playerName + " , you are set to go.",
-				"The opening ceremony will begin | in about 15 minutes.",
-				"It will be located at the | pavillion which by the | center stage.",
-				"In the meantime, try talking to some | people and don't forget to grab | your swag!"])
-		}else if(taskIndex == 2){
+			endScene();
+		}
+	}
+	else if(trigger === "talk_Sonia"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Sonia: Finding bugs in | code and squashing them | is super fun.",
+				"Let me solve your | frustrations. It may just | be a simple error."])
+		}else if(taskIndex == 1){
+			endScene();
+		}
+	}
+	else if(trigger === "talk_Nick"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Nick: Development in the | back-end fits my | style more.",
+				"I can't wait to | start programming."])
+		}else if(taskIndex == 1){
+			endScene();
+		}
+	}
+	else if(trigger === "talk_Anthony"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Anthony: I don't believe | in messy code.",
+				"The design and structure is | the most important part | of a program."])
+		}else if(taskIndex == 1){
+			endScene();
+		}
+	}
+	else if(trigger === "talk_Belle"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Belle: The internet is full of | information~!",
+				"I research a lot. | There are so many | posibilities."])
+		}else if(taskIndex == 1){
+			endScene();
+		}
+	}
+	else if(trigger === "talk_Troy"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Troy: I know just | a little bit of | everything.",
+				"Kind of like a jack-of-all | trades you know?"])
+		}else if(taskIndex == 1){
 			endScene();
 		}
 	}
 
-}
-else if(story.quest === "Hack"){
-	
+	//go back to the organizer
+	else if(trigger === "talk_organizer" && dialogue.threshold > 3){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Staff: Do you know who you | want to be on your team | yet?"])
+		}else if(taskIndex == 1){
+			newChoice(["Yes", "No"]);
+		}
+	}
+
+	else if(trigger === "> Yes"){
+		if(taskIndex == 2){
+			newDialog(["Great, who would you | like to add to | your team?"]);
+		}else if(taskIndex == 3){
+			newChoice([""])
+		}
+	}
+
 }
 
 

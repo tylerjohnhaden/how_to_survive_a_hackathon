@@ -58,31 +58,33 @@ function hacker(name, x, y, classType, skillSet){
 
 }
 
-function npc(name, x, y, text, skin){
-	var set = new getIMGNPC(skin);
-
+function npc(x, y, text, skin){
+	this.name = "???";
+	this.x = x*story.size;
+	this.y = y*story.size;
   	//sprite properties
-  	this.name = name;
-  	this.width = 16;
-  	this.height = 20;
-	this.img = set.img;
-  	this.ready = set.ready;
-
-
-	this.text = text;
-	this.move = "drunk_walk";
-	this.interact = false;
-  	this.boundary;
+	this.width = 16;
+	this.height = 16;
+	this.dir = "north";
+	this.action = "idle";
 
 	//movement
   	this.speed = 1;
   	this.initPos = 0;
   	this.moving = false;
-  	this.x = x * 16; 
-  	this.y = y * 16;
   	this.velX = 0;
  	this.velY = 0;
-  	this.fps = 4;            //frame speed
-  	this.fpr = 12;           //# of frames per row
-  	this.show = true;
+
+	//other properties
+	this.text = ["I AM ERROR"];
+	this.text_index = 0;
+	this.interact = false;
+	this.move = "drunk_walk";
+	this.boundary;
+	this.wt = 0;
+
+	var set = new getIMGNPC(skin);
+	this.img = set.img;
+	this.ready = set.ready;
+	this.show = true;
 }

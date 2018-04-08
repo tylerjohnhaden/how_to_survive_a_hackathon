@@ -27,8 +27,19 @@ bgPNG.onload = function(){
 var hackAreaPNG = new Image();
 hackAreaPNG.src = "../sprites/hackarea.png";
 hackAreaPNG.onload = function(){
-	ctx.drawImage(hackAreaPNG, 0, 32);
+	if(story.scene === "main")
+		ctx.drawImage(hackAreaPNG, 0, 32);
 };
+
+//hallway
+var hallwayPNG = new Image();
+hallwayPNG.src = '../sprites/Hallway.png';
+var hallReady = false;
+hallwayPNG.onload = function(){
+	hallReady = true;
+	if(story.scene === "hall")
+		ctx.drawImage(hallwayPNG, 0, 0);
+}
 
 //////   gui   //////
 //dialog
@@ -166,6 +177,9 @@ items.push(project);
 
 
 var hackers = [];
+var spectators = [];
+var organizers = [];
+var sponsors = [];
 
 
 /////////////////     GENERIC FUNCTIONS   ///////////
@@ -283,6 +297,13 @@ function velControl(cur, value, max){
 	}
 }
 
+
+function lockMotion(sprite){
+	sprite.moving = false;
+	sprite.action = "idle";
+	sprite.velY = 0;
+	sprite.velX = 0;
+}
 
 
 ///////////////   INTERACT   ////////////////
@@ -624,6 +645,25 @@ function collide(sprite, boundary=null){
 	return hitNPC(sprite) || hitWall(sprite) || hitItem(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
 }
 
+function goodSpot(x, y){
+	for(var r=0;r<rows;r++){
+		for(var c=0;c<cols;c++){
+			if(r == y && c == x && map[r][c] == 1)
+				return false;
+		}
+	}
+
+	for(var a=0;a<npcs;a++){
+		if(npcs[a].x == x && npcs[a].y == y)
+			return false;
+	}
+	for(var b=0;b<items;b++){
+		if(items[b].x == x && items[b].y == y)
+			return false;
+	}
+	return true;
+}
+
 
 ///////////////////   CAMERA  /////////////////////
 
@@ -744,6 +784,12 @@ function checkRender(){
 		};
 	}
 
+	if(!hallReady){
+		hallwayPNG.onload = function(){
+			hallReady = true;
+		};
+	}
+
 
 	//player
 	if(!player.ready){
@@ -851,7 +897,8 @@ function rendersprite(sprite){
 }
 
 function renderItem(item){
-	ctx.drawImage(item.img, item.x, item.y);
+	if(item.show && item.ready)
+		ctx.drawImage(item.img, item.x, item.y);
 }
 
 function drawBars(){
@@ -891,7 +938,10 @@ function render(){
 	ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 	
 	//draw hack are
-	ctx.drawImage(hackAreaPNG, 0, 32);
+	if(story.scene === "main")
+		ctx.drawImage(hackAreaPNG, 0, 32);
+	else if(story.scene === "hall")
+		ctx.drawImage(hallwayPNG, 0, 0);
 
 	//draw the map
 	//drawMap();
@@ -1290,7 +1340,64 @@ function normal_game_action(){
 
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
+function makeHackArea(){
+	rows = 13;
+	cols = 17;
+	map = [
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+			[0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
+			[0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],
+			[0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0],
+			[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
+			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+			[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+			];
+	level_loaded = true;
+	player.x = 0;
+	player.y = 7*story.size;
+	lockMotion(player);
+	makeHackers();
+	makeSpectators();
+	story.scene = "main";
+	project.show = false;
+
+
+	var organizer = new npc(8, 2, ["Hey there!"], "organizer");
+	organizer.name = "organizer";
+	organizer.move = "none";
+	npcs.push(organizer);
+}
+
+function makeHallArea(){
+	rows = 6;
+	cols = 9;
+	map = [
+		[1,1,1,1,1,1,1,1,1],
+		[1,1,1,1,1,1,1,1,1],
+		[1,1,1,1,1,1,1,1,1],
+		[0,0,0,0,0,0,0,0,0],
+		[0,0,0,0,0,0,0,0,0],
+		[1,1,1,1,1,1,1,1,1]
+		]
+	level_loaded = true;
+	player.x = 1*story.size;
+	player.y = 3*story.size;
+	story.scene = "hall";
+	for(var n=0;n<npcs.length;n++){
+		npcs[n].show = false;
+	}
+
+}
+
 function makeHackers(){
+	hackers = []
+
 	var mac = new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]);
 	var sonia = new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]);
 	var nick = new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]);
@@ -1308,44 +1415,50 @@ function makeHackers(){
 	npcs.push.apply(npcs, hackers);
 }
 
-function init(){
-	map = [
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-			[0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
-			[0,0,0,0,0,1,0,0,0,0,0,1,0,0,0,0,0],
-			[0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0],
-			[0,1,1,1,0,0,0,0,0,0,0,0,0,1,1,1,0],
-			[0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,1,1,1,0,0,0,1,1,1,0,0,0,1,1,1,0],
-			[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-			[0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
-			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
-			];
-	level_loaded = true;
-	makeHackers();
-	story.player = player;
+function makeSpectators(){
+	spectators = [];
+	var spect1 = new npc(10, 3, ["Hack the Planet!"], "npc1");
+	var spect2 = new npc(5, 1, ["Hack the Planet!"], "npc2");
+	var spect3 = new npc(12, 7, ["Hack the Planet!"], "npc3");
+	var spect4 = new npc(3, 10, ["Hack the Planet!"], "npc4");
+	var spect5 = new npc(11, 11, ["Hack the Planet!"], "npc5");
 
-	var squad = [];
-	for(var h=0;h<hackers.length;h++){
-		if(squad.length < 3){
-			var pickMe = Math.floor(Math.random()*2);
-			if(pickMe == 0){
-				squad.push(hackers[h]);
-			}
-		}
+
+	for(var s=0;s<spectators;s++){
+		spectators.show = true;
 	}
-	hack(squad);
+
+	spectators.push(spect1);
+	spectators.push(spect2);
+	spectators.push(spect3);
+	spectators.push(spect4);
+	spectators.push(spect5);
+
+	npcs.push.apply(npcs, spectators);
+}
+
+
+function init(){
+	player.show = false;
+	var activations = [makeHallArea, makeHackArea];
+	story.storyFunct = activations;
+
+	var playerName = prompt("Enter your name");
+
+	//makeHackArea();
+	makeHallArea();
+	story.player = player;
+	story.team = team;
+	story.player.name = playerName;
+	player.show = true;
+	startGame();
 }
 
 function startGame(){
 	story.quest = "Register";
 	story.trigger = "start_game";
-	player.x = 12*story.size;
-	player.y = 1*story.size;
-	resetCamera();
+	makeHallArea();
+	//resetCamera();
 }
 
 function makeTeamScene(){
@@ -1364,6 +1477,19 @@ function makeTeamScene(){
 	hackers[3].boundary = new boundArea(7,10,3,1);  // anthony
 	hackers[4].boundary = new boundArea(13,5,3,1);  // belle
 	hackers[5].boundary = new boundArea(7,8,3,1);  // troy
+}
+
+function testTeam(){
+	var squad = [];
+	for(var h=0;h<hackers.length;h++){
+		if(squad.length < 3){
+			var pickMe = Math.floor(Math.random()*2);
+			if(pickMe == 0){
+				squad.push(hackers[h]);
+			}
+		}
+	}
+	hack(squad);
 }
 
 
