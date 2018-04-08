@@ -239,7 +239,7 @@ Hacker: Hey I think there is a problem with the wifi, I don't think its working.
 
 Organizer: Yeah I am terribly sorry. The systems are being overloaded.
 
-Organizer: I desperately need help. I can't fix the system because all of the others are helping other people.
+Organizer: I desperately need help. I can't fix the system.
 
 Organizer: Can you help me please? (y/n)
 
@@ -255,7 +255,13 @@ Organizer: I need you to find me fiber optic cable.
 
 Organizer: With that, I'll be able to upgrade the system for larger bandwith.
 
+Organizer: It might be in an object around the venue.
 
+if hacker goes to table:
+
+** Start project? y/n
+
+Project: Work on project? y/n
 
 
 
