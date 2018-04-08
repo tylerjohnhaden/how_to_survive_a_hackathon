@@ -233,6 +233,8 @@ Person 2 from the Team: I think we should start right away.
 
 Person 2 from the Team: It's up to you ______. We can ask the organizers, or just start.
 
+========================= SUB QUEST FOR WIFI =====================================================
+
 if Hacker goes to Organizer:
 
 Hacker: Hey I think there is a problem with the wifi, I don't think its working.
@@ -255,38 +257,59 @@ Organizer: I need you to find me fiber optic cable.
 
 Organizer: With that, I'll be able to upgrade the system for larger bandwith.
 
-Organizer: It might be in an object around the venue.
+Organizer: Another person might be carrying some.
 
-if hacker goes to table:
+Fiber optic found from npc: 
 
-** Start project? y/n
+npc: Hey how's the project going?
 
-Project: Work on project? y/n
+npc: Oh you need fiber optic cable?
+
+npc: I believe our group isn't using this one.
+
+npc: Fiber optic cable received!
+
+================================= SUB QUEST FOR FLASH DRIVE ====================================
 
 if Hacker talks to random person in team:
 
 Person: Does anybody have a flash drive?
 
-Person: It would be easier to transfer data and the project would be finished quicker.
+Person: I think I left my flash drive somewhere near an object.
 
-Person: If you have time, ask around to see if anybody has a flash drive.
+Person: The project would be completed faster if you could find it.
 
-from random npc:
+flash drive from tv object:
 
-npc: Hey hows the project going?
+tv: Bzzz. Bzzzz.
 
-npc: Oh do you need a flash drive?
+* super mario theme song plays
 
-npc: Here is an extra one that I am not using.
-
-npc: Keep it. It is all yours!
+tv: Found flash drive!
 
 
+======================dialogue for extra objects================================
+** Start project? y/n
+
+Project: Work on project? y/n
+
+working on project: Click, click. *sigh... Click, click.
+
+working on project: Progress made!
 
 
+sleep: Your body starts to feel faint.
 
+sleep: You have collapsed from lack of sleep.
 
+sleep: Zzz. Zzz. Zzzzz.
 
+Random team member: **nudge nudge. You need to wake up, time is running out.
+
+Hacker: Morality increased
+
+redbull: You just grew wings. Morality increased.
+coffee: Oh it's vanilla mocha, my favorite. Morality increased.
 
 
 
