@@ -9,6 +9,13 @@ canvas.width = 288;
 canvas.height = 224;
 document.body.appendChild(canvas);
 
+var guiCanvas = document.createElement("canvas");
+guiCanvas.id = "guiCanvas";
+var ctx2 = guiCanvas.getContext("2d");
+guiCanvas.width = 288;
+guiCanvas.height = 54;
+document.body.appendChild(guiCanvas);
+
 //background image
 var bgPNG = new Image();
 bgPNG.src = "../sprites/background.png";
@@ -29,6 +36,30 @@ var dialogIMG = new Image();
 dialogIMG.src = '../gui/dialog_box.png';
 var dialogReady = false;
 dialogIMG.onload = function(){dialogReady = true;};
+
+//project bar progress
+var projectBarIMG = new Image();
+projectBarIMG.src = '../gui/projectbar.png';
+var projectBarReady = false;
+projectBarIMG.onload = function(){projectBarReady = true;};
+
+//team skill bar
+var teamBarIMG = new Image();
+teamBarIMG.src = '../gui/teambar.png';
+var teamBarReady = false;
+teamBarIMG.onload = function(){teamBarReady = true;};
+
+//energy bar
+var energyBarIMG = new Image();
+energyBarIMG.src = '../gui/energypic.png';
+var energyReady = false;
+energyBarIMG.onload = function(){energyReady = true;};
+
+//filler bar
+var fillerBarIMG = new Image();
+fillerBarIMG.src = '../gui/fullbar.png';
+var fillerReady = false;
+fillerBarIMG.onload = function(){fillerReady = true;};
 
 
 //level
@@ -114,7 +145,24 @@ var team = {
 	projectProg : 0,
 	caffeine : 50,
 	challenges : [],
+	teamSkill : [0,0,0,0,0],
 }
+
+var projectIMG = new Image();
+projectIMG.src = "../sprites/project.png";
+var projectReady = false;
+projectIMG.onload = function(){projectReady = true;};
+var project = {
+	x : 256,
+	y : 288,
+	img : projectIMG,
+	ready : projectReady,
+	show : true,
+	text : ["i7c7btb [i kuf", "function(0iuf) {}"],
+	text_index : 0,
+	area : new boundArea(8, 10, 1, 1)
+}
+items.push(project);
 
 
 var hackers = [];
@@ -169,7 +217,7 @@ function goWest(sprite){
 
 //movement on the map
 function travel(sprite){
-	if(sprite.action == "travel"){   //continue if allowed to move
+	if(sprite.action === "travel"){   //continue if allowed to move
 		var curspeed = sprite.speed;
 
 		//travel north
@@ -242,22 +290,22 @@ function velControl(cur, value, max){
 
 
 //the interact function
-function canInteract(person, item){
+function canInteract(sprite, item){
 	if(!item.show)
 		return false;
 
 	//get the positions
 		var rx;
 		var ry;
-		if(person.dir === "north" || person.dir === "west"){
-			rx = Math.ceil(person.x / size);
-			ry = Math.ceil(person.y / size);
-		}else if(person.dir === "south" || person.dir === "east"){
-			rx = Math.floor(person.x / size);
-			ry = Math.floor(person.y / size);
+		if(sprite.dir === "north" || sprite.dir === "west"){
+			rx = Math.ceil(sprite.x / size);
+			ry = Math.ceil(sprite.y / size);
+		}else if(sprite.dir === "south" || sprite.dir === "east"){
+			rx = Math.floor(sprite.x / size);
+			ry = Math.floor(sprite.y / size);
 		}
 	
-		//decide if adjacent to person
+		//decide if adjacent to sprite
 		var t = item;
 		var xArea = [];
 		var yArea = [];
@@ -278,45 +326,45 @@ function canInteract(person, item){
 		
 
 		//determine if able to interact
-		if(person.dir == "north" && (inArr(xArea, rx) && inArr(yArea, ry-1)))
+		if(sprite.dir == "north" && (inArr(xArea, rx) && inArr(yArea, ry-1)))
 			return true;
-		else if(person.dir == "south" && (inArr(xArea, rx) && inArr(yArea, ry+1)))
+		else if(sprite.dir == "south" && (inArr(xArea, rx) && inArr(yArea, ry+1)))
 			return true;
-		else if(person.dir == "east" && (inArr(xArea, rx+1) && inArr(yArea, ry)))
+		else if(sprite.dir == "east" && (inArr(xArea, rx+1) && inArr(yArea, ry)))
 			return true;
-		else if(person.dir == "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
+		else if(sprite.dir == "west" && (inArr(xArea, rx-1) && inArr(yArea, ry)))
 			return true;
 	
 	return false;
 }
 
 //the talk function
-function canTalk(person, other_pers){
+function canTalk(sprite, other_pers){
 	if(other_pers.moving || !other_pers.show)
 		return false;
 
 	//get the positions
 		var rx;
 		var ry;
-		if(person.dir === "north" || person.dir === "west"){
-			rx = Math.ceil(person.x / size);
-			ry = Math.ceil(person.y / size);
-		}else if(person.dir === "south" || person.dir === "east"){
-			rx = Math.floor(person.x / size);
-			ry = Math.floor(person.y / size);
+		if(sprite.dir === "north" || sprite.dir === "west"){
+			rx = Math.ceil(sprite.x / size);
+			ry = Math.ceil(sprite.y / size);
+		}else if(sprite.dir === "south" || sprite.dir === "east"){
+			rx = Math.floor(sprite.x / size);
+			ry = Math.floor(sprite.y / size);
 		}
 	
-		//decide if adjacent to person
+		//decide if adjacent to sprite
 		nx = Math.floor(other_pers.x / size);
 		ny = Math.floor(other_pers.y / size);
 
-		if(person.dir == "north" && (rx == nx) && (ry-1 == ny))
+		if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
 			return true;
-		else if(person.dir == "south" && (rx == nx) && (ry+1 == ny))
+		else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
 			return true;
-		else if(person.dir == "east" && (rx+1 == nx) && (ry == ny))
+		else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
 			return true;
-		else if(person.dir == "west" && (rx-1 == nx) && (ry == ny))
+		else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
 			return true;
 }	
 
@@ -361,75 +409,75 @@ function defaultBehavior(npc){
 
 
 //if hit a collision point on the wall
-function hitWall(person){
+function hitWall(sprite){
 	if(!level_loaded)
 		return false;
 
 	//get the positions
 	var rx;
 	var ry;
-	if(person.dir === "north" || person.dir === "west"){
-		rx = Math.ceil(person.x / size);
-		ry = Math.ceil(person.y / size);
-	}else if(person.dir === "south" || person.dir === "east"){
-		rx = Math.floor(person.x / size);
-		ry = Math.floor(person.y / size);
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
 	}
 
 
 
 	//edge of map = undecided
-	if((person.dir === "west" && rx-1 < 0) 
-		|| (person.dir === "east" && rx+1 >= cols) 
-			|| (person.dir === "north" && ry-1 < 0) 
-				|| (person.dir === "east" && ry+1 >= rows))
+	if((sprite.dir === "west" && rx-1 < 0) 
+		|| (sprite.dir === "east" && rx+1 >= cols) 
+			|| (sprite.dir === "north" && ry-1 < 0) 
+				|| (sprite.dir === "east" && ry+1 >= rows))
 		return;
 
-	//decide if adjacent to person
-	if(person.dir == "north" && inArr(collideTiles, map[ry-1][rx]))
+	//decide if adjacent to sprite
+	if(sprite.dir == "north" && inArr(collideTiles, map[ry-1][rx]))
 		return true;
-	else if(person.dir == "south" && inArr(collideTiles, map[ry+1][rx]))
+	else if(sprite.dir == "south" && inArr(collideTiles, map[ry+1][rx]))
 		return true;
-	else if(person.dir == "east" && inArr(collideTiles, map[ry][rx+1]))
+	else if(sprite.dir == "east" && inArr(collideTiles, map[ry][rx+1]))
 		return true;
-	else if(person.dir == "west" && inArr(collideTiles, map[ry][rx-1]))
+	else if(sprite.dir == "west" && inArr(collideTiles, map[ry][rx-1]))
 		return true;
 	else
 		return false;
 }
 
-//if hit another person
-function hitNPC(person){
+//if hit another sprite
+function hitNPC(sprite){
 
 	//get the positions
 	var rx;
 	var ry;
-	if(person.dir === "north" || person.dir === "west"){
-		rx = Math.ceil(person.x / size);
-		ry = Math.ceil(person.y / size);
-	}else if(person.dir === "south" || person.dir === "east"){
-		rx = Math.floor(person.x / size);
-		ry = Math.floor(person.y / size);
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
 	}
 
-	//decide if adjacent to person
+	//decide if adjacent to sprite
 	var ouch = false;
 	for(var i=0;i<npcs.length;i++){
 		var n = npcs[i];
 
-		if(n == person || !n.show)
+		if(n == sprite || !n.show)
 			continue;
 
 		nx = Math.floor(n.x / size);
 		ny = Math.floor(n.y / size);
 
-		if(person.dir == "north" && (rx == nx) && (ry-1 == ny))
+		if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
 			ouch = true;
-		else if(person.dir == "south" && (rx == nx) && (ry+1 == ny))
+		else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
 			ouch = true;
-		else if(person.dir == "east" && (rx+1 == nx) && (ry == ny))
+		else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
 			ouch = true;
-		else if(person.dir == "west" && (rx-1 == nx) && (ry == ny))
+		else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
 			ouch = true;
 	}
 	return ouch;
@@ -480,6 +528,41 @@ function hitBoundary(sprite, boundary){
 		return true;
 	
 	return false;
+}
+
+function hitItem(sprite){
+	//get the positions
+	var rx;
+	var ry;
+	if(sprite.dir === "north" || sprite.dir === "west"){
+		rx = Math.ceil(sprite.x / size);
+		ry = Math.ceil(sprite.y / size);
+	}else if(sprite.dir === "south" || sprite.dir === "east"){
+		rx = Math.floor(sprite.x / size);
+		ry = Math.floor(sprite.y / size);
+	}
+
+	//decide if adjacent to sprite
+	var ouch = false;
+	for(var i=0;i<items.length;i++){
+		var n = items[i];
+
+		if(n == sprite || !n.show)
+			continue;
+
+		nx = Math.floor(n.x / size);
+		ny = Math.floor(n.y / size);
+
+		if(sprite.dir == "north" && (rx == nx) && (ry-1 == ny))
+			ouch = true;
+		else if(sprite.dir == "south" && (rx == nx) && (ry+1 == ny))
+			ouch = true;
+		else if(sprite.dir == "east" && (rx+1 == nx) && (ry == ny))
+			ouch = true;
+		else if(sprite.dir == "west" && (rx-1 == nx) && (ry == ny))
+			ouch = true;
+	}
+	return ouch;
 }
 
 //if hit another generic object
@@ -538,7 +621,7 @@ function screenEdge(sprite){
 //grouped collision checker
 function collide(sprite, boundary=null){
 	//return false;
-	return hitNPC(sprite) || hitWall(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
+	return hitNPC(sprite) || hitWall(sprite) || hitItem(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
 }
 
 
@@ -688,12 +771,17 @@ function checkRender(){
 		}
 	}
 
-	/*
-	//gui
+	
+	//dialogue
 	if(!dialogReady){
 		dialogIMG.onload = function(){dialogReady = true;};
 	}
-	*/
+
+	//gui bars
+	if(!energyReady){projectBarIMG.onload = function(){projectBarReady = true;};}
+	if(!teamBarReady){teamBarIMG.onload = function(){teamBarReady = true;};}
+	if(!energyBarIMG){energyBarIMG.onload = function(){energyReady = true;};}
+	if(!fillerReady){fillerBarIMG.onload = function(){fillerReady = true;};}
 }
 
 
@@ -762,6 +850,31 @@ function rendersprite(sprite){
 	}
 }
 
+function renderItem(item){
+	ctx.drawImage(item.img, item.x, item.y);
+}
+
+function drawBars(){
+
+	//background gui
+	ctx2.drawImage(projectBarIMG, 2, 4);
+	ctx2.drawImage(energyBarIMG, 96, 4);
+	ctx2.drawImage(teamBarIMG, 190, 4);
+
+	//health bar gui
+	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 8, 36, (team.projectProg/100) * 88, 12);
+	ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 102, 36, (team.caffeine/100) * 88, 12);
+
+	//team stats gui
+	ctx2.fillStyle = "#ff0000";
+	ctx2.fillText(team.teamSkill[0], 196, 46);
+	ctx2.fillText(team.teamSkill[1], 216, 46);
+	ctx2.fillText(team.teamSkill[2], 236, 46);
+	ctx2.fillText(team.teamSkill[3], 250, 46);
+	ctx2.fillText(team.teamSkill[4], 272, 46);
+}
+
+
 //render everything 
 function render(){
 	checkRender();
@@ -811,6 +924,7 @@ function render(){
 
 function drawGUI(){
 	drawDialog();
+	drawBars();
 }
 
 
@@ -920,7 +1034,7 @@ var text_time = 0;					//typewriter effect
 var texting = false;				//currently typing
 var lineTexts = ["", ""];		//the two lines that can be shown on screen
 var maxWidth = 140;
-var lineHeight = 16;
+var lineHeight = 32;
 var jump = -1;
 
 function typewrite(){	
@@ -1177,12 +1291,12 @@ function normal_game_action(){
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
 function makeHackers(){
-	var mac = new hacker("Mac", 1, 2, "deployment", new skill(20, 0, 0, 0, 0));
-	var sonia = new hacker("Sonia", 3, 5, "debugger", new skill(0, 0, 0, 20, 0));
-	var nick = new hacker("Nick", 15, 8, "developer", new skill(0, 20, 0, 0, 0));
-	var anthony = new hacker("Anthony", 8, 10, "design", new skill(0, 0, 20, 0, 0));
-	var belle = new hacker("Belle", 13, 5, "researcher", new skill(0, 0, 0, 0, 20));
-	var troy = new hacker("Troy", 6, 5, "jack", new skill(5,5,5,5,5));
+	var mac = new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]);
+	var sonia = new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]);
+	var nick = new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]);
+	var anthony = new hacker("Anthony", 13, 11, "design", [0, 0, 20, 0, 0]);
+	var belle = new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]);
+	var troy = new hacker("Troy", 10, 4, "jack", [5,5,5,5,5]);
 
 	hackers.push(mac);
 	hackers.push(sonia);
@@ -1211,7 +1325,64 @@ function init(){
 			[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
 			];
 	level_loaded = true;
-	makeHackers()
+	makeHackers();
+	story.player = player;
+
+	var squad = [];
+	for(var h=0;h<hackers.length;h++){
+		if(squad.length < 3){
+			var pickMe = Math.floor(Math.random()*2);
+			if(pickMe == 0){
+				squad.push(hackers[h]);
+			}
+		}
+	}
+	hack(squad);
+}
+
+function startGame(){
+	story.quest = "Register";
+	story.trigger = "start_game";
+	player.x = 12*story.size;
+	player.y = 1*story.size;
+	resetCamera();
+}
+
+function makeTeamScene(){
+	//reset positions
+	hackers[0].x = 1; hackers[0].y = 2;
+	hackers[1].x = 3; hackers[1].y = 5;
+	hackers[2].x = 15; hackers[2].y = 8;
+	hackers[3].x = 8; hackers[3].y = 10;
+	hackers[4].x = 13; hackers[4].y = 5;
+	hackers[5].x = 7; hackers[5].y = 8;
+
+	//set boundaries
+	hackers[0].boundary = new boundArea(1,2,3,1);  // mac
+	hackers[1].boundary = new boundArea(1,5,3,1);  // sonia
+	hackers[2].boundary = new boundArea(13,8,3,1);  // nick
+	hackers[3].boundary = new boundArea(7,10,3,1);  // anthony
+	hackers[4].boundary = new boundArea(13,5,3,1);  // belle
+	hackers[5].boundary = new boundArea(7,8,3,1);  // troy
+}
+
+
+function calculateSkills(){
+	for(var i=0;i<team.members.length;i++){
+		for(var s=0;s<5;s++){
+			team.teamSkill[s] += team.members[i].skillSet[s];
+		}
+	}
+}
+function hack(members){
+	team.members = members;
+	calculateSkills();
+	for(var m=0;m<members.length;m++){
+		members[m].show = true;
+		members[m].x = 224 + 32*m;
+		members[m].y = 256;
+		members[m].move = "code";
+	}
 }
 
 function main(){
@@ -1219,9 +1390,17 @@ function main(){
 	canvas.focus();
 	render();
 
+	play();
+
 	//player movement
-	if(!story.pause)
+	var pixX = Math.round(player.x / size);
+	var pixY = Math.round(player.y / size);
+
+	if(!story.pause){
 		travel(player);
+		if(player.action == "travel")
+			story.trigger = "x"+pixX+"_y"+pixY;
+	}
 
 	panCamera();
 
@@ -1238,8 +1417,10 @@ function main(){
 	if(!story.cutscene){
 		if(player.interact){
 			story.dialogue.show = true;
-		}else
+		}else{
 			story.dialogue.show = false;
+			clearText();
+		}
 	}
 
 //keyboard ticks
@@ -1256,17 +1437,9 @@ function main(){
 
 	///////////////    DEBUG   //////////////////
 
-	var pixX = Math.round(player.x / size);
-	var pixY = Math.round(player.y / size);
-
-	if(npcs.length > 0){
-		var nx = Math.round(npcs[0].x / size);
-		var ny = Math.round(npcs[0].y / size);
-	}
-
 	var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
 	settings += " --- Pix X: " + pixX + " | Pix Y: " + pixY;
-	settings += " --- " + hitWall(player)  + " " + player.dir;
+	settings += " --- " + story.trigger;
 	document.getElementById('debug').innerHTML = settings;
 
 }

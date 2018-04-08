@@ -22,14 +22,6 @@ function getIMGNPC(name){
 
 }
 
-function skill(dep, dev, des, deb, res){
-	this.deploy = dep;
-	this.develop = dev;
-	this.design = des;
-	this.debug = deb;
-	this.research = res;
-}
-
 function hacker(name, x, y, classType, skillSet){
 	this.name = name;
 	this.x = x*story.size;
@@ -41,17 +33,29 @@ function hacker(name, x, y, classType, skillSet){
 	this.height = 16;
 	this.dir = "north";
 	this.action = "idle";
-	this.moving = false;
+
+
+	//movement
+  	this.speed = 1;
+  	this.initPos = 0;
+  	this.moving = false;
+  	this.velX = 0;
+ 	this.velY = 0;
 
 	//other properties
 	this.text = ["Hi! My name is " + name + "!", "I'm a " + classType + "<0>"];
 	this.text_index = 0;
 	this.interact = false;
+	this.move = "drunk_walk";
+	this.boundary;
+	this.wt = 0;
 
 	var set = new getIMGNPC(classType);
 	this.img = set.img;
 	this.ready = set.ready;
 	this.show = true;
+
+
 }
 
 function npc(name, x, y, text, skin){
@@ -68,7 +72,7 @@ function npc(name, x, y, text, skin){
 	this.text = text;
 	this.move = "drunk_walk";
 	this.interact = false;
-  	this.boundArea;
+  	this.boundary;
 
 	//movement
   	this.speed = 1;
