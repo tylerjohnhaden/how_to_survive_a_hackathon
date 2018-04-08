@@ -167,6 +167,14 @@ if(story.quest === "Demo"){
 			story.storyFunct[2](player.other);
 			endScene();
 		}
+	}else if(trigger === "touch_project"){
+		story.cutscene = true;
+		if(taskIndex == 0){
+			newDialog(["Project: 4d 49 4c 4b",
+						"I am " + story.team.projectProg + "% complete!"]);
+		}else if(taskIndex == 1){
+			endScene();
+		}
 	}
 }
 
