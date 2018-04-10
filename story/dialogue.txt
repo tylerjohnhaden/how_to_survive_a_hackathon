@@ -309,14 +309,7 @@ Random team member: **nudge nudge. You need to wake up, time is running out.
 Hacker: Morality increased
 
 redbull: You just grew wings. Morality increased.
-coffee: Oh it's vanilla mocha, my favorite. Morality increased.
-
-
-
-
-
-
- 	
+coffee: Oh it's vanilla mocha, my favorite. Morality increased. 	
 
 
 
