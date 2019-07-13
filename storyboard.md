@@ -1,18 +1,18 @@
-Project for Bit Camp 4/6/2018
+# How To Survive a Hackathon
+_Project for Bit Camp 4/6/2018_
 
-Objects in the game -
 
-Player
-Chatbot
-Team of Additional Characters
-Upgrades
-Quest
-Quest Giver
-Health
-Tester
+## Objects in the game
+- Player
+- Chatbot
+- Team of Additional Characters
+- Upgrades
+- Quest
+- Quest Giver
+- Health
+- Tester
 
-Events from the Beginning of Bitcamp
-
+## Events from the Beginning of Bitcamp
 1. Check-in
 2. Sponsorship Fair
 3. Opening Ceremony
@@ -22,6 +22,8 @@ Events from the Beginning of Bitcamp
 7. Judging Final Projects
 8. Conclusion/ Leaving
 
+## Draft 0
+```
 Act I Scene I
 
 **Arrives at entrance of the Xfinity Center
@@ -310,6 +312,4 @@ Hacker: Morality increased
 
 redbull: You just grew wings. Morality increased.
 coffee: Oh it's vanilla mocha, my favorite. Morality increased. 	
-
-
-
+```

@@ -13,10 +13,21 @@
     <script src="story.js"></script>
 </head>
 <body onload="init()">
-<!--<div id="debugBar">
+
+<div id="debugBar" style="visibility: hidden">
     <p id="debug">...</p>
     <button onclick="startGame()">START</button>
-</div>-->
+</div>
+
+<script>
+    // set to true to go down the mysterious debug path ...
+    var mysteriousDebugPath = false;
+
+    if (mysteriousDebugPath) {
+        document.getElementById('debugBar').style.visibility = 'visible';
+    }
+</script>
+
 <script src="game.js"></script>
 </body>
 </html>

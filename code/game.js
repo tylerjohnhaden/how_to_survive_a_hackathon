@@ -622,7 +622,6 @@ function hitNPC(sprite) {
 
 //if hit a specific boundary area
 function hitBoundary(sprite, boundary) {
-console.log('here 12', story.size, size);
     //boundary in the form [x,y,w,h]
     if (boundary == null) {
         return false;
@@ -1537,7 +1536,6 @@ function makeHallArea() {
         [1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
     level_loaded = true;
-    console.log('here 4', story.size, size);
     player.x = 1 * story.size;
     player.y = 3 * story.size;
     story.scene = "hall";
@@ -1652,7 +1650,6 @@ function startGame() {
 }
 
 function makeTeamScene() {
-    console.log('here 2', story.size, size);
     //reset positions
     hackers[0].x = 1 * story.size;
     hackers[0].y = 2 * story.size;
@@ -1667,7 +1664,7 @@ function makeTeamScene() {
     hackers[5].x = 15 * story.size;
     hackers[5].y = 10 * story.size;
 
-    //set boundaries
+    // set boundaries
     hackers[0].boundary = new boundArea(1, 2, 3, 1); // mac
     hackers[1].boundary = new boundArea(1, 5, 3, 1); // sonia
     hackers[2].boundary = new boundArea(13, 8, 3, 1); // nick
