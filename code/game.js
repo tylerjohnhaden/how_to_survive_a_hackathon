@@ -1,5 +1,7 @@
 // Game code
 
+import { boundArea, hacker, npc } from './character.js';
+import { story, triggerWord, play } from './story.js';
 
 // set up the canvas
 var canvas = document.createElement("canvas");
@@ -18,14 +20,14 @@ document.body.appendChild(guiCanvas);
 
 // background image
 var bgPNG = new Image();
-bgPNG.src = "../sprites/background.png";
+bgPNG.src = "./sprites/background.png";
 bgPNG.onload = function () {
     ctx.drawImage(bgPNG, 0, 0);
 };
 
 // background image
 var hackAreaPNG = new Image();
-hackAreaPNG.src = "../sprites/hackarea.png";
+hackAreaPNG.src = "./sprites/hackarea.png";
 hackAreaPNG.onload = function () {
     if (story.scene === "main")
         ctx.drawImage(hackAreaPNG, 0, 32);
@@ -33,7 +35,7 @@ hackAreaPNG.onload = function () {
 
 // hallway
 var hallwayPNG = new Image();
-hallwayPNG.src = '../sprites/Hallway.png';
+hallwayPNG.src = './sprites/Hallway.png';
 var hallReady = false;
 hallwayPNG.onload = function () {
     hallReady = true;
@@ -44,7 +46,7 @@ hallwayPNG.onload = function () {
 //////   gui   //////
 //dialog
 var dialogIMG = new Image();
-dialogIMG.src = '../gui/dialog_box.png';
+dialogIMG.src = './gui/dialog_box.png';
 var dialogReady = false;
 dialogIMG.onload = function () {
     dialogReady = true;
@@ -52,7 +54,7 @@ dialogIMG.onload = function () {
 
 //project bar progress
 var projectBarIMG = new Image();
-projectBarIMG.src = '../gui/projectbar.png';
+projectBarIMG.src = './gui/projectbar.png';
 var projectBarReady = false;
 projectBarIMG.onload = function () {
     projectBarReady = true;
@@ -60,7 +62,7 @@ projectBarIMG.onload = function () {
 
 //team skill bar
 var teamBarIMG = new Image();
-teamBarIMG.src = '../gui/teambar.png';
+teamBarIMG.src = './gui/teambar.png';
 var teamBarReady = false;
 teamBarIMG.onload = function () {
     teamBarReady = true;
@@ -68,7 +70,7 @@ teamBarIMG.onload = function () {
 
 //energy bar
 var energyBarIMG = new Image();
-energyBarIMG.src = '../gui/energypic.png';
+energyBarIMG.src = './gui/energypic.png';
 var energyReady = false;
 energyBarIMG.onload = function () {
     energyReady = true;
@@ -76,7 +78,7 @@ energyBarIMG.onload = function () {
 
 //filler bar
 var fillerBarIMG = new Image();
-fillerBarIMG.src = '../gui/fullbar.png';
+fillerBarIMG.src = './gui/fullbar.png';
 var fillerReady = false;
 fillerBarIMG.onload = function () {
     fillerReady = true;
@@ -129,7 +131,7 @@ var keys = [];
 
 
 var playerIMG = new Image();
-playerIMG.src = "../sprites/main.png";
+playerIMG.src = "./sprites/main.png";
 var playerReady = false;
 playerIMG.onload = function () {
     playerReady = true;
@@ -173,7 +175,7 @@ var team = {
 }
 
 var projectIMG = new Image();
-projectIMG.src = "../sprites/project.png";
+projectIMG.src = "./sprites/project.png";
 var projectReady = false;
 projectIMG.onload = function () {
     projectReady = true;
@@ -192,7 +194,7 @@ var project = {
 items.push(project);
 
 var coffeeIMG = new Image();
-coffeeIMG.src = '../sprites/coffee.png';
+coffeeIMG.src = './sprites/coffee.png';
 var coffeeReady = false;
 coffeeIMG.onload = function () {
     coffeeReady = true;
@@ -210,7 +212,7 @@ var coffee = {
 }
 
 var redbullIMG = new Image();
-redbullIMG.src = '../sprites/redbull.png';
+redbullIMG.src = './sprites/redbull.png';
 var redbullReady = false;
 redbullIMG.onload = function () {
     redbullReady = true;
@@ -228,7 +230,7 @@ var redbull = {
 }
 
 var wifiIMG = new Image();
-wifiIMG.src = '../sprites/wifi.png';
+wifiIMG.src = './sprites/wifi.png';
 var wifiReady = false;
 wifiIMG.onload = function () {
     wifiReady = true;
@@ -246,7 +248,7 @@ var wifi = {
 }
 
 var floppyIMG = new Image();
-floppyIMG.src = '../sprites/floppy.png';
+floppyIMG.src = './sprites/floppy.png';
 var floppyReady = false;
 floppyIMG.onload = function () {
     floppyReady = true;
@@ -264,7 +266,7 @@ var floppy = {
 }
 
 var invisibleIMG = new Image();
-invisibleIMG.src = '../sprites/invisible.png';
+invisibleIMG.src = './sprites/invisible.png';
 var invisibleReady = false;
 invisibleIMG.onload = function () {
     invisibleReady = true;
@@ -494,8 +496,8 @@ function canTalk(sprite, other_pers) {
     }
 
     //decide if adjacent to sprite
-    nx = Math.floor(other_pers.x / size);
-    ny = Math.floor(other_pers.y / size);
+    let nx = Math.floor(other_pers.x / size);
+    let ny = Math.floor(other_pers.y / size);
 
     if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
         return true;
@@ -584,8 +586,6 @@ function hitWall(sprite) {
 
 //if hit another sprite
 function hitNPC(sprite) {
-    console.log('here 13', story.size, size);
-
     //get the positions
     var rx;
     var ry;
@@ -605,8 +605,8 @@ function hitNPC(sprite) {
         if (n == sprite || !n.show)
             continue;
 
-        nx = Math.floor(n.x / size);
-        ny = Math.floor(n.y / size);
+        let nx = Math.floor(n.x / size);
+        let ny = Math.floor(n.y / size);
 
         if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
             ouch = true;
@@ -624,6 +624,7 @@ function hitNPC(sprite) {
 function hitBoundary(sprite, boundary) {
     //boundary in the form [x,y,w,h]
     if (boundary == null) {
+        console.error('Boundaries can\'t be hit if they don\'t exist');
         return false;
     }
 
@@ -679,8 +680,6 @@ function hitItem(sprite) {
         ry = Math.floor(sprite.y / size);
     }
 
-    console.log('here 11', story.size, size);
-
     //decide if adjacent to sprite
     var ouch = false;
     for (var i = 0; i < items.length; i++) {
@@ -689,8 +688,8 @@ function hitItem(sprite) {
         if (n == sprite || !n.show)
             continue;
 
-        nx = Math.floor(n.x / size);
-        ny = Math.floor(n.y / size);
+        let nx = Math.floor(n.x / size);
+        let ny = Math.floor(n.y / size);
 
         if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
             ouch = true;
@@ -981,62 +980,62 @@ function drawchar(sprite) {
         ctx.drawImage(sprite.img, sprite.x, sprite.y);
 }
 
-//draw a character sprite
-function drawsprite(sprite) {
-    updatesprite(sprite);
-    rendersprite(sprite);
-}
-
-//update animation
-function updatesprite(sprite) {
-    //update the frames
-    if (sprite.ct == (sprite.fps - 1))
-        sprite.curFrame = (sprite.curFrame + 1) % sprite.seqlength;
-
-    sprite.ct = (sprite.ct + 1) % sprite.fps;
-}
+////draw a character sprite
+//function drawsprite(sprite) {
+//    updatesprite(sprite);
+//    rendersprite(sprite);
+//}
+//
+////update animation
+//function updatesprite(sprite) {
+//    //update the frames
+//    if (sprite.ct == (sprite.fps - 1))
+//        sprite.curFrame = (sprite.curFrame + 1) % sprite.seqlength;
+//
+//    sprite.ct = (sprite.ct + 1) % sprite.fps;
+//}
 //draw the sprite
-function rendersprite(sprite) {
-    //set the animation sequence
-    var sequence;
-    if (sprite.dir == "north") {
-        if (sprite.action == "idle")
-            sequence = sprite.idleNorth;
-        else
-            sequence = sprite.moveNorth;
-    } else if (sprite.dir == "south") {
-        if (sprite.action == "idle")
-            sequence = sprite.idleSouth;
-        else
-            sequence = sprite.moveSouth;
-    } else if (sprite.dir == "west") {
-        if (sprite.action == "idle")
-            sequence = sprite.idleWest;
-        else
-            sequence = sprite.moveWest;
-    } else if (sprite.dir == "east") {
-        if (sprite.action == "idle")
-            sequence = sprite.idleEast;
-        else
-            sequence = sprite.moveEast;
-    }
-
-    //get the row and col of the current frame
-    var row = Math.floor(sequence[sprite.curFrame] / sprite.fpr);
-    var col = Math.floor(sequence[sprite.curFrame] % sprite.fpr);
-
-    var curheight = sprite.height;
-    var offY = sprite.offsetY;
-    var sprIMG = sprite.img;
-
-    if (sprite.show && sprite.ready) {
-        ctx.drawImage(sprIMG,
-            col * sprite.width, row * curheight,
-            sprite.width, curheight,
-            sprite.x - sprite.offsetX, sprite.y - offY,
-            sprite.width, curheight);
-    }
-}
+//function rendersprite(sprite) {
+//    //set the animation sequence
+//    var sequence;
+//    if (sprite.dir == "north") {
+//        if (sprite.action == "idle")
+//            sequence = sprite.idleNorth;
+//        else
+//            sequence = sprite.moveNorth;
+//    } else if (sprite.dir == "south") {
+//        if (sprite.action == "idle")
+//            sequence = sprite.idleSouth;
+//        else
+//            sequence = sprite.moveSouth;
+//    } else if (sprite.dir == "west") {
+//        if (sprite.action == "idle")
+//            sequence = sprite.idleWest;
+//        else
+//            sequence = sprite.moveWest;
+//    } else if (sprite.dir == "east") {
+//        if (sprite.action == "idle")
+//            sequence = sprite.idleEast;
+//        else
+//            sequence = sprite.moveEast;
+//    }
+//
+//    //get the row and col of the current frame
+//    var row = Math.floor(sequence[sprite.curFrame] / sprite.fpr);
+//    var col = Math.floor(sequence[sprite.curFrame] % sprite.fpr);
+//
+//    var curheight = sprite.height;
+//    var offY = sprite.offsetY;
+//    var sprIMG = sprite.img;
+//
+//    if (sprite.show && sprite.ready) {
+//        ctx.drawImage(sprIMG,
+//            col * sprite.width, row * curheight,
+//            sprite.width, curheight,
+//            sprite.x - sprite.offsetX, sprite.y - offY,
+//            sprite.width, curheight);
+//    }
+//}
 
 function renderItem(item) {
     if (item.show && item.ready)
@@ -1066,6 +1065,7 @@ function drawBars() {
 
 //render everything
 function render() {
+//    alert('about to render');
     checkRender();
     ctx.save();
 
@@ -1607,7 +1607,9 @@ var energyClock = 0;
 var projectClock = 0;
 var projInc = 0;
 
-function init() {
+console.log('here 100');
+
+export function init() {
     player.show = false;
     var activations = [makeHallArea, makeHackArea, randomPosition];
     story.storyFunct = activations;
@@ -1638,11 +1640,9 @@ function init() {
     player.show = true
 
     story.quest = "Demo";
-    //startGame();
-    demoTeam();
 }
 
-function startGame() {
+export function startGame() {
     story.quest = "Register";
     story.trigger = "start_game";
     makeHallArea();
@@ -1650,19 +1650,28 @@ function startGame() {
 }
 
 function makeTeamScene() {
+    function _s(x) {
+        return x * story.size;
+    }
+
     //reset positions
-    hackers[0].x = 1 * story.size;
-    hackers[0].y = 2 * story.size;
-    hackers[1].x = 3 * story.size;
-    hackers[1].y = 5 * story.size;
-    hackers[2].x = 15 * story.size;
-    hackers[2].y = 8 * story.size;
-    hackers[3].x = 1 * story.size;
-    hackers[3].y = 4 * story.size;
-    hackers[4].x = 13 * story.size;
-    hackers[4].y = 5 * story.size;
-    hackers[5].x = 15 * story.size;
-    hackers[5].y = 10 * story.size;
+    hackers[0].x = _s(1);
+    hackers[0].y = _s(2);
+
+    hackers[1].x = _s(3);
+    hackers[1].y = _s(5);
+
+    hackers[2].x = _s(15);
+    hackers[2].y = _s(8);
+
+    hackers[3].x = _s(1);
+    hackers[3].y = _s(4);
+
+    hackers[4].x = _s(13);
+    hackers[4].y = _s(5);
+
+    hackers[5].x = _s(15);
+    hackers[5].y = _s(10);
 
     // set boundaries
     hackers[0].boundary = new boundArea(1, 2, 3, 1); // mac
@@ -1673,7 +1682,7 @@ function makeTeamScene() {
     hackers[5].boundary = new boundArea(13, 10, 3, 1); // troy
 }
 
-function demoTeam() {
+export function demoTeam() {
     var squad = [];
     for (var h = 0; h < hackers.length; h++) {
         if (squad.length < 3) {

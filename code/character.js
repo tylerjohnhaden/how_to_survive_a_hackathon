@@ -1,5 +1,7 @@
+import { story } from './story.js';
+
 // area for collision (x and y are relative to the object starting from the top right)
-function boundArea(x, y, w, h) {
+export function boundArea(x, y, w, h) {
     this.x = x;
     this.y = y;
     this.w = w;
@@ -9,18 +11,21 @@ function boundArea(x, y, w, h) {
 
 function getIMGNPC(name) {
     var charIMG = new Image();
-    charIMG.src = "../sprites/" + name + ".png";
+    charIMG.src = "./sprites/" + name + ".png";
+
+
 
     var charReady = false;
     charIMG.onload = function () {
         charReady = true;
+        console.log('ready', name);
     };
 
     this.img = charIMG;
     this.ready = charReady;
 }
 
-function hacker(name, x, y, classType, skillSet) {
+export function hacker(name, x, y, classType, skillSet) {
     this.name = name;
     this.x = x * story.size;
     this.y = y * story.size;
@@ -56,7 +61,7 @@ function hacker(name, x, y, classType, skillSet) {
 
 }
 
-function npc(x, y, text, skin) {
+export function npc(x, y, text, skin) {
     this.name = "???";
     this.x = x * story.size;
     this.y = y * story.size;

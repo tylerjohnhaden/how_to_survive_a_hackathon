@@ -1,4 +1,4 @@
-var story = {
+export let story = {
     //character stats
     player: null,
     team: null,
@@ -49,7 +49,7 @@ var story = {
 }
 
 
-function triggerWord(word) {
+export function triggerWord(word) {
     if (story.quest === "Register")
         return true;
     else if (story.quest === "Demo") {
@@ -107,7 +107,7 @@ function endChoice() {
     story.choice_box.lines = [];
 }
 
-function play() {
+export function play() {
     //make local variables
     var trigger = story.trigger;
     var storyIndex = story.storyIndex;

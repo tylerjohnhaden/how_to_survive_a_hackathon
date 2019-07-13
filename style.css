@@ -61,12 +61,12 @@ p {
 
 @font-face {
     font-family: Fixedsys;
-    src: url('../gui/FSEX300.ttf');
+    src: url('./gui/FSEX300.ttf');
 }
 
 @font-face {
     font-family: Gameboy;
-    src: url('../gui/pokemon_gb-webfont.ttf');
+    src: url('./gui/pokemon_gb-webfont.ttf');
 }
 
 #gui {
