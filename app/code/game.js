@@ -3,6 +3,8 @@
 import { boundArea, hacker, npc } from './character.js';
 import { story, triggerWord, play } from './story.js';
 
+export { boundArea };
+
 // set up the canvas
 var canvas = document.createElement("canvas");
 canvas.id = "game";
@@ -46,7 +48,7 @@ hallwayPNG.onload = function () {
 //////   gui   //////
 //dialog
 var dialogIMG = new Image();
-dialogIMG.src = './gui/dialog_box.png';
+dialogIMG.src = './sprites/dialog_box.png';
 var dialogReady = false;
 dialogIMG.onload = function () {
     dialogReady = true;
@@ -54,7 +56,7 @@ dialogIMG.onload = function () {
 
 //project bar progress
 var projectBarIMG = new Image();
-projectBarIMG.src = './gui/projectbar.png';
+projectBarIMG.src = './sprites/projectbar.png';
 var projectBarReady = false;
 projectBarIMG.onload = function () {
     projectBarReady = true;
@@ -62,7 +64,7 @@ projectBarIMG.onload = function () {
 
 //team skill bar
 var teamBarIMG = new Image();
-teamBarIMG.src = './gui/teambar.png';
+teamBarIMG.src = './sprites/teambar.png';
 var teamBarReady = false;
 teamBarIMG.onload = function () {
     teamBarReady = true;
@@ -70,7 +72,7 @@ teamBarIMG.onload = function () {
 
 //energy bar
 var energyBarIMG = new Image();
-energyBarIMG.src = './gui/energypic.png';
+energyBarIMG.src = './sprites/energypic.png';
 var energyReady = false;
 energyBarIMG.onload = function () {
     energyReady = true;
@@ -78,7 +80,7 @@ energyBarIMG.onload = function () {
 
 //filler bar
 var fillerBarIMG = new Image();
-fillerBarIMG.src = './gui/fullbar.png';
+fillerBarIMG.src = './sprites/fullbar.png';
 var fillerReady = false;
 fillerBarIMG.onload = function () {
     fillerReady = true;
@@ -137,9 +139,7 @@ playerIMG.onload = function () {
     playerReady = true;
 };
 
-console.log('here 1', story.size, size);
-
-var player = {
+export var player = {
     //sprite properties
     name: "Hax",
     width: 16,
@@ -166,7 +166,7 @@ var player = {
 
 }
 
-var team = {
+export var team = {
     members: [],
     projectProg: 0,
     energy: 50,
@@ -285,7 +285,7 @@ function invisItem(name, x, y, text) {
 }
 
 
-var hackers = [];
+export let hackers = [];
 var spectators = [];
 var organizers = [];
 var sponsors = [];
@@ -715,7 +715,6 @@ function hitOther(sprite, other) {
         rx = Math.floor(sprite.x / size);
         ry = Math.floor(sprite.y / size);
     }
-console.log('here 10', story.size, size);
     //decide if adjacent to sprite
     var nx = Math.floor(other.x / size);
     var ny = Math.floor(other.y / size);
@@ -736,7 +735,6 @@ function screenEdge(sprite) {
     //get the positions
     var rx;
     var ry;
-    console.log('here 10', story.size, size);
     if (sprite.dir === "north" || sprite.dir === "west") {
         rx = Math.ceil(sprite.x / size);
         ry = Math.ceil(sprite.y / size);
@@ -796,7 +794,6 @@ console.log('here 8', story.size, size);
 //have the camera follow the player
 function panCamera() {
     if (level_loaded) {
-    console.log('here 7', story.size, size);
         //camera displacement
         if ((player.x >= (canvas.width / 2)) && (player.x <= (map[0].length * size) - (canvas.width / 2)))
             camera.x = player.x - (canvas.width / 2);
@@ -901,6 +898,11 @@ function smallStep(robot) {
 
 //check for render ok
 function checkRender() {
+
+//    for (let i = 0; i < 100000000000000; i ++) {
+//        var k = 9837450 * i;
+//    }
+
     //tiles
     if (!tilesReady) {
         tiles.onload = function () {
@@ -1502,14 +1504,12 @@ function makeHackArea() {
     ];
     level_loaded = true;
     player.x = 0;
-    console.log('here 5', story.size, size);
     player.y = 7 * story.size;
     lockMotion(player);
-    makeHackers();
+    hackers = makeHackers();
+    console.log(hackers);
     makeSpectators();
     story.scene = "main";
-    project.show = false;
-
 
     var organizer = new npc(8, 2, ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "organizer");
     organizer.name = "organizer";
@@ -1545,32 +1545,24 @@ function makeHallArea() {
 
 }
 
-function makeHackers() {
-    hackers = []
+export function makeHackers() {
+    let hackers = [
+        new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]),
+        new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]),
+        new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]),
+        new hacker("Anthony", 13, 11, "design", [0, 0, 20, 0, 0]),
+        new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]),
+        new hacker("Troy", 10, 4, "jack", [5, 5, 5, 5, 5])
+    ];
 
-    var mac = new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]);
-    var sonia = new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]);
-    var nick = new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]);
-    var anthony = new hacker("Anthony", 13, 11, "design", [0, 0, 20, 0, 0]);
-    var belle = new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]);
-    var troy = new hacker("Troy", 10, 4, "jack", [5, 5, 5, 5, 5]);
+    hackers[0].text[1] = "I'm a deployer - I market | the code and software";
+    hackers[1].text[1] = "I debug the code for errors";
+    hackers[2].text[1] = "I write and develop the | code";
+    hackers[3].text[1] = "I design the architecture | of the code";
+    hackers[4].text[1] = "I research the problem | using information online";
+    hackers[5].text[1] = "I'm like a | jack-of-all-trades | -  I'm good at a lot of | different things!";
 
-    mac.text[1] = "I'm a deployer - I market | the code and software";
-    sonia.text[1] = "I debug the code for errors";
-    nick.text[1] = "I write and develop the | code";
-    anthony.text[1] = "I design the architecture | of the code";
-    belle.text[1] = "I research the problem | using information online";
-    troy.text[1] = "I'm like a | jack-of-all-trades | -  I'm good at a lot of | different things!";
-
-
-    hackers.push(mac);
-    hackers.push(sonia);
-    hackers.push(nick);
-    hackers.push(anthony);
-    hackers.push(belle);
-    hackers.push(troy);
-
-    npcs.push.apply(npcs, hackers);
+    return hackers;
 }
 
 function makeSpectators() {
@@ -1595,23 +1587,17 @@ function makeSpectators() {
     npcs.push.apply(npcs, spectators);
 }
 
-function makeEnergy() {
-    energies = [];
-
-}
-
-
 var hackClock = 0;
 var timeLeft = 2160;
 var energyClock = 0;
 var projectClock = 0;
 var projInc = 0;
 
-console.log('here 100');
+console.log('here 111');
 
 export function init() {
     player.show = false;
-    var activations = [makeHallArea, makeHackArea, randomPosition];
+    var activations = [null, makeHackArea, randomPosition];
     story.storyFunct = activations;
 
     var playerName = prompt("Enter your name");
@@ -1649,51 +1635,6 @@ export function startGame() {
     //resetCamera();
 }
 
-function makeTeamScene() {
-    function _s(x) {
-        return x * story.size;
-    }
-
-    //reset positions
-    hackers[0].x = _s(1);
-    hackers[0].y = _s(2);
-
-    hackers[1].x = _s(3);
-    hackers[1].y = _s(5);
-
-    hackers[2].x = _s(15);
-    hackers[2].y = _s(8);
-
-    hackers[3].x = _s(1);
-    hackers[3].y = _s(4);
-
-    hackers[4].x = _s(13);
-    hackers[4].y = _s(5);
-
-    hackers[5].x = _s(15);
-    hackers[5].y = _s(10);
-
-    // set boundaries
-    hackers[0].boundary = new boundArea(1, 2, 3, 1); // mac
-    hackers[1].boundary = new boundArea(1, 5, 3, 1); // sonia
-    hackers[2].boundary = new boundArea(13, 8, 3, 1); // nick
-    hackers[3].boundary = new boundArea(1, 4, 3, 1); // anthony
-    hackers[4].boundary = new boundArea(13, 5, 3, 1); // belle
-    hackers[5].boundary = new boundArea(13, 10, 3, 1); // troy
-}
-
-export function demoTeam() {
-    var squad = [];
-    for (var h = 0; h < hackers.length; h++) {
-        if (squad.length < 3) {
-            var pickMe = Math.floor(Math.random() * 2);
-            if (pickMe == 0) {
-                squad.push(hackers[h]);
-            }
-        }
-    }
-    hack(squad);
-}
 
 function randomPosition(item) {
     var x = Math.floor(Math.random() * cols);
@@ -1706,19 +1647,15 @@ function randomPosition(item) {
     item.y = y * story.size;
 }
 
+export function hack(members) {
+    team.members = members;
 
-function calculateSkills() {
     for (var i = 0; i < team.members.length; i++) {
         for (var s = 0; s < 5; s++) {
             team.teamSkill[s] += team.members[i].skillSet[s];
         }
     }
-}
 
-function hack(members) {
-    makeTeamScene();
-    team.members = members;
-    calculateSkills();
     for (var m = 0; m < members.length; m++) {
         members[m].show = true;
         members[m].x = 224 + 32 * m;
@@ -1726,10 +1663,7 @@ function hack(members) {
         members[m].move = "code";
         members[m].text.push("Let's build a chatbot, | " + player.name + "!");
     }
-    project.show = true;
 }
-
-var test = "no";
 
 function main() {
     requestAnimationFrame(main);

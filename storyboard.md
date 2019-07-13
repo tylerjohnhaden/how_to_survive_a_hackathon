@@ -1,6 +1,7 @@
 # How To Survive a Hackathon
 _Project for Bit Camp 4/6/2018_
 
+![missing title image](title.png)
 
 ## Objects in the game
 - Player
@@ -22,7 +23,10 @@ _Project for Bit Camp 4/6/2018_
 7. Judging Final Projects
 8. Conclusion/ Leaving
 
-## Draft 0
+## Screenshot
+![missing screenshot image](screenshot1.png)
+
+## Draft Storyboard
 ```
 Act I Scene I
 

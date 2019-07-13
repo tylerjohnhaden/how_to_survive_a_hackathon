@@ -191,7 +191,7 @@ export function play() {
 
         if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && story.scene === "hall") {
             story.storyFunct[1]();
-
+            alert('ee');
         }
         if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && story.scene === "main") {
             story.cutscene = true;
