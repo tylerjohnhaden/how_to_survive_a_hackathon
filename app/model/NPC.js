@@ -1,6 +1,6 @@
 export class NPC {
     constructor(npcDatum, scale) {
-        this.name = "???";
+        this.name = npcDatum.name;
         this.dialogueLines = npcDatum.dialogueLines.unshift("Hi! My name is " + this.name + "!");
         this.dialogueIndex = 0;
 

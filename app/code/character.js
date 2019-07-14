@@ -18,7 +18,7 @@ function getIMGNPC(name) {
         charReady = true;
     };
 
-    this.img = charIMG;
+    this.skin = charIMG;
     this.ready = charReady;
 }
 
@@ -51,7 +51,7 @@ export function hacker(name, x, y, classType, skillSet) {
     this.wt = 0;
 
     var set = new getIMGNPC(classType);
-    this.img = set.img;
+    this.skin = set.skin;
     this.ready = set.ready;
     this.show = true;
 
@@ -85,7 +85,7 @@ export function npc(x, y, text, skin) {
     this.wt = 0;
 
     var set = new getIMGNPC(skin);
-    this.img = set.img;
+    this.skin = set.skin;
     this.ready = set.ready;
     this.show = true;
 }

@@ -2,7 +2,7 @@
 
 import { _ } from './lib/underscore.js'
 
-import { hackerData, npcData } from './data/data.js';
+import { hackerData, npcData, organizerData, sponsorData } from './data/data.js';
 
 import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
@@ -14,7 +14,7 @@ import { hacker } from './code/character.js';
 async function main() {
     let processedHackers, processedNPCs;
 
-    let oldWay = true;
+    let oldWay = false;
 
     if (oldWay) {
         processedHackers = makeHackers();
@@ -31,6 +31,21 @@ async function main() {
 
     npcs.push.apply(npcs, processedHackers);
     npcs.push.apply(npcs, processedNPCs);
+
+    if (oldWay) {
+        var organizer = new npc(8, 2, ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "organizer");
+        organizer.name = "organizer";
+        organizer.move = "none";
+        npcs.push(organizer);
+
+        var sponsor = new npc(2, 8, ["Happy hacking!"], "sponsor");
+        sponsor.name = "sponsor";
+        sponsor.move = "none";
+        npcs.push(sponsor);
+    } else {
+        npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, 32)));
+        npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, 32)));
+    }
 
     if (demo) {
         updateHackers(processedHackers);
@@ -101,9 +116,6 @@ function updateHackers(_hackers) {
     _hackers[4].boundary = new boundArea(13, 5, 3, 1); // belle
     _hackers[5].boundary = new boundArea(13, 10, 3, 1); // troy
 }
-
-//startGame();  // todo: figure out what this is supposed to do
-
 
 function makeHackers() {
     let hackers = [

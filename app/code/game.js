@@ -144,7 +144,7 @@ export var player = {
     name: "Hax",
     width: 16,
     height: 16,
-    img: playerIMG,
+    skin: playerIMG,
     ready: playerReady,
 
     //movement
@@ -184,7 +184,7 @@ var project = {
     name: "project",
     x: 256,
     y: 288,
-    img: projectIMG,
+    skin: projectIMG,
     ready: projectReady,
     show: true,
     text: ["4d 49 4c 4b"],
@@ -203,7 +203,7 @@ var coffee = {
     name: "coffee",
     x: 128,
     y: 32,
-    img: coffeeIMG,
+    skin: coffeeIMG,
     ready: coffeeReady,
     show: true,
     text: ["COFFEE!"],
@@ -221,7 +221,7 @@ var redbull = {
     name: "redbull",
     x: 512,
     y: 192,
-    img: redbullIMG,
+    skin: redbullIMG,
     ready: redbullReady,
     show: true,
     text: ["RED BULL!"],
@@ -239,7 +239,7 @@ var wifi = {
     name: "wifi",
     x: 512,
     y: 32,
-    img: wifiIMG,
+    skin: wifiIMG,
     ready: wifiReady,
     show: true,
     text: ["WIFI!"],
@@ -257,7 +257,7 @@ var floppy = {
     name: "floppy",
     x: 384,
     y: 32,
-    img: floppyIMG,
+    skin: floppyIMG,
     ready: floppyReady,
     show: true,
     text: ["UPGRADE!"],
@@ -272,22 +272,20 @@ invisibleIMG.onload = function () {
     invisibleReady = true;
 };
 
-function invisItem(name, x, y, text) {
-    this.name = name;
-    this.x = x;
-    this.y = y;
-    this.text = text;
-    this.img = invisibleIMG;
-    this.ready = invisibleReady;
-    this.show = true;
-    this.text_index = 0;
-    this.area = null;
-}
+//function invisItem(name, x, y, text) {
+//    this.name = name;
+//    this.x = x;
+//    this.y = y;
+//    this.text = text;
+//    this.img = invisibleIMG;
+//    this.ready = invisibleReady;
+//    this.show = true;
+//    this.text_index = 0;
+//    this.area = null;
+//}
 
 
 var spectators = [];
-var organizers = [];
-var sponsors = [];
 
 var energies = [];
 energies.push(coffee);
@@ -900,8 +898,8 @@ export function allImagesAreReady() {
         [hallwayPNG, 'hallwayPNG'],
     ];
 
-    namedImages.push.apply(namedImages, npcs.map(npc => [npc.img, `npc(${npc.name})`]));
-    namedImages.push.apply(namedImages, items.map(item => [item.img, `npc(${item.name})`]));
+    namedImages.push.apply(namedImages, npcs.map(npc => [npc.skin, `npc(${npc.name})`]));
+    namedImages.push.apply(namedImages, items.map(item => [item.skin, `npc(${item.name})`]));
 
     return namedImages.every(namedImage => {
         let _image = namedImage[0];
@@ -944,10 +942,10 @@ function checkRender() {
 
     //player
     if (!player.ready) {
-        player.img.onload = function () {
+        player.skin.onload = function () {
             player.ready = true;
         }
-        if (player.img.width !== 0) {
+        if (player.skin.width !== 0) {
             player.ready = true;
         }
     }
@@ -964,7 +962,7 @@ function checkRender() {
     //item
     for (var i = 0; i < items.length; i++) {
         if (!items[i].ready) {
-            if (items[i].img.width !== 0) {
+            if (items[i].skin.width !== 0) {
                 items[i].ready = true;
             }
         }
@@ -1003,7 +1001,7 @@ function checkRender() {
 
 
 function drawchar(sprite) {
-    ctx.drawImage(sprite.img, sprite.x, sprite.y);
+    ctx.drawImage(sprite.skin, sprite.x, sprite.y);
 }
 
 ////draw a character sprite
@@ -1065,7 +1063,7 @@ function drawchar(sprite) {
 
 function renderItem(item) {
     if (item.show && item.ready)
-        ctx.drawImage(item.img, item.x, item.y);
+        ctx.drawImage(item.skin, item.x, item.y);
 }
 
 function drawBars() {
@@ -1525,20 +1523,7 @@ function makeHackArea() {
     player.x = 0;
     player.y = 7 * story.size;
     lockMotion(player);
-//    makeSpectators();
     story.scene = "main";
-
-    var organizer = new npc(8, 2, ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "organizer");
-    organizer.name = "organizer";
-    organizer.move = "none";
-    organizers.push(organizer)
-    npcs.push(organizer);
-
-    var sponsor = new npc(2, 8, ["Happy hacking!"], "sponsor");
-    sponsor.name = "sponsor";
-    sponsor.move = "none";
-    sponsors.push(sponsor);
-    npcs.push(sponsor);
 }
 
 function makeHallArea() {
@@ -1617,7 +1602,8 @@ export function init() {
     story.quest = "Demo";
 }
 
-export function startGame() {
+// todo: figure out what this is supposed to do
+function startGame() {
     story.quest = "Register";
     story.trigger = "start_game";
     makeHallArea();

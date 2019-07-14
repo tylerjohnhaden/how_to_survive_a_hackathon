@@ -1,9 +1,9 @@
 export const npcData = [
-    {"x": 10, "y": 3, "dialogueLines": ["Hack the Planet!"], "skin": "npc1"},
-    {"x": 5, "y": 1, "dialogueLines": ["Hack the Planet!"], "skin": "npc2"},
-    {"x": 12, "y": 7, "dialogueLines": ["Hack the Planet!"], "skin": "npc3"},
-    {"x": 3, "y": 10, "dialogueLines": ["Hack the Planet!"], "skin": "npc4"},
-    {"x": 11, "y": 11, "dialogueLines": ["Hack the Planet!"], "skin": "npc5"},
+    {"name": "npc1", "x": 10, "y": 3, "dialogueLines": ["Hack the Planet!"], "skin": "npc1"},
+    {"name": "npc2", "x": 5, "y": 1, "dialogueLines": ["Hack the Planet!"], "skin": "npc2"},
+    {"name": "npc3", "x": 12, "y": 7, "dialogueLines": ["Hack the Planet!"], "skin": "npc3"},
+    {"name": "npc4", "x": 3, "y": 10, "dialogueLines": ["Hack the Planet!"], "skin": "npc4"},
+    {"name": "npc5", "x": 11, "y": 11, "dialogueLines": ["Hack the Planet!"], "skin": "npc5"},
 ]
 
 export const hackerData = [
@@ -16,9 +16,9 @@ export const hackerData = [
 ]
 
 export const organizerData = [
-    {"x": 8, "y": 2, "dialogueLines": ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "skin": "organizer"},
+    {"name": "organizer", "x": 8, "y": 2, "dialogueLines": ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "skin": "organizer"},
 ]
 
 export const sponsorData = [
-    {"x": 2, "y": 8, "dialogueLines": ["Happy hacking!"], "skin": "sponsor"},
+    {"name": "sponsor", "x": 2, "y": 8, "dialogueLines": ["Happy hacking!"], "skin": "sponsor"},
 ]
