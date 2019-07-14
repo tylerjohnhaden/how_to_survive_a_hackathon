@@ -8,8 +8,8 @@ import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
 //import { Player } from './model/Player.js';
 
-import { init, boundArea, team, player, npcs, makeSpectators, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
-import { hacker } from './code/character.js';
+import { init, boundArea, team, player, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
+import { hacker, npc } from './code/character.js';
 
 async function main() {
     let processedHackers, processedNPCs;
@@ -18,7 +18,19 @@ async function main() {
 
     if (oldWay) {
         processedHackers = makeHackers();
-        processedNPCs = makeSpectators();
+
+        processedNPCs = [
+            new npc(10, 3, ["Hack the Planet!"], "npc1"),
+            new npc(5, 1, ["Hack the Planet!"], "npc2"),
+            new npc(12, 7, ["Hack the Planet!"], "npc3"),
+            new npc(3, 10, ["Hack the Planet!"], "npc4"),
+            new npc(11, 11, ["Hack the Planet!"], "npc5"),
+        ];
+
+        for (var s = 0; s < processedNPCs.length; s++) {
+            processedNPCs[0].show = true;
+        }
+
     } else {
         processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, 32));
         processedNPCs = npcData.map(npcDatum => new NPC(npcDatum, 32));

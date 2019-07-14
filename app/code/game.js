@@ -3,7 +3,7 @@
 import { boundArea, npc } from './character.js';
 import { story, triggerWord, play } from './story.js';
 
-export { boundArea };
+export { boundArea, npc };
 
 // set up the canvas
 var canvas = document.createElement("canvas");
@@ -1545,22 +1545,6 @@ function makeHallArea() {
         npcs[n].show = false;
     }
 
-}
-
-export function makeSpectators() {
-    let spectators = [
-        new npc(10, 3, ["Hack the Planet!"], "npc1"),
-        new npc(5, 1, ["Hack the Planet!"], "npc2"),
-        new npc(12, 7, ["Hack the Planet!"], "npc3"),
-        new npc(3, 10, ["Hack the Planet!"], "npc4"),
-        new npc(11, 11, ["Hack the Planet!"], "npc5"),
-    ];
-
-    for (var s = 0; s < spectators.length; s++) {
-        spectators[0].show = true;
-    }
-
-    return spectators;
 }
 
 var hackClock = 0;

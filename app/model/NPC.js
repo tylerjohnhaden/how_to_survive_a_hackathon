@@ -28,5 +28,6 @@ export class NPC {
         this.move = "drunk_walk";
         this.boundary;
         this.wt = 0;
+        this.show = true;
     }
 }
