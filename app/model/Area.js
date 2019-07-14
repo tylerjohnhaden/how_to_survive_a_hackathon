@@ -1,9 +1,13 @@
 export class Area {
-    constructor(map, scene, size, setToStart) {
-        this.map = map;
-        this.scene = scene;
-        this.size = size;
-        this.setToStart = setToStart;
+    constructor(areaDatum) {
+        this.map = areaDatum.map;
+        this.startingCoordinates = areaDatum.startingCoordinates;
+        this.scene = areaDatum.scene;
+        this.size = areaDatum.size;
+
+        // load the skin, will exist before as another image
+        this.skin = new Image();
+        this.skin.src = "./sprites/" + areaDatum.skinName + ".png";
     }
 
     get rows() {

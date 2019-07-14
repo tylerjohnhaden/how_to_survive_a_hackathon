@@ -2,7 +2,7 @@
 
 import { _ } from './lib/underscore.js'
 
-import { hackerData, npcData, organizerData, sponsorData } from './data/data.js';
+import { hackerData, npcData, organizerData, sponsorData, areaData } from './data/data.js';
 
 import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
@@ -28,33 +28,7 @@ async function main(demo) {
 
     console.log('loaded in hackers and npcs', npcs);
 
-    init(new Area(
-        [
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ],
-        'main',
-        32,
-        _player => {
-            _player.x = 0;
-            _player.y = 7 * 32;
-            _player.moving = false;
-            _player.action = "idle";
-            _player.velY = 0;
-            _player.velX = 0;
-        },
-    ));
+    init(new Area(areaData.find(areaDatum => areaDatum.scene == 'main')));
 
     // block until ready
     while(!allImagesAreReady()) {

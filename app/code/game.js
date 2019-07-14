@@ -1502,30 +1502,6 @@ function normal_game_action() {
 
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
-function makeHackArea() {
-    rows = 13;
-    cols = 17;
-    map = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ];
-    player.x = 0;
-    player.y = 7 * story.size;
-    lockMotion(player);
-    story.scene = "main";
-}
-
 function makeHallArea() {
     rows = 6;
     cols = 9;
@@ -1582,7 +1558,13 @@ export function init(_area) {
     story.quest = "Demo";
 
     area = _area;
-    area.setToStart(player);
+
+    player.moving = false;
+    player.action = "idle";
+    player.velY = 0;
+    player.velX = 0;
+    player.x = area.startingCoordinates.x;
+    player.y = area.startingCoordinates.y;
 }
 
 // todo: figure out what this is supposed to do
