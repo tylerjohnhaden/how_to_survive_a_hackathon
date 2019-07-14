@@ -6,71 +6,63 @@ import { hackerData, npcData, organizerData, sponsorData } from './data/data.js'
 
 import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
+import { Area } from './model/Area.js';
 //import { Player } from './model/Player.js';
 
-import { init, boundArea, team, player, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
-import { hacker, npc } from './code/character.js';
+import { init, boundArea, team, PLAYER_NAME, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
+import { hacker } from './code/character.js';
 
-async function main() {
-    let processedHackers, processedNPCs;
+async function main(demo) {
+    const storySize = 32;
 
-    let oldWay = false;
-
-    if (oldWay) {
-        processedHackers = makeHackers();
-
-        processedNPCs = [
-            new npc(10, 3, ["Hack the Planet!"], "npc1"),
-            new npc(5, 1, ["Hack the Planet!"], "npc2"),
-            new npc(12, 7, ["Hack the Planet!"], "npc3"),
-            new npc(3, 10, ["Hack the Planet!"], "npc4"),
-            new npc(11, 11, ["Hack the Planet!"], "npc5"),
-        ];
-
-        for (var s = 0; s < processedNPCs.length; s++) {
-            processedNPCs[0].show = true;
-        }
-
-    } else {
-        processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, 32));
-        processedNPCs = npcData.map(npcDatum => new NPC(npcDatum, 32));
-    }
-
-    console.log('loaded in hackers and npcs', processedHackers, processedNPCs);
-
-    let storySize = 32;
-    let demo = false;
-
+    let processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, storySize));
     npcs.push.apply(npcs, processedHackers);
-    npcs.push.apply(npcs, processedNPCs);
-
-    if (oldWay) {
-        var organizer = new npc(8, 2, ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "organizer");
-        organizer.name = "organizer";
-        organizer.move = "none";
-        npcs.push(organizer);
-
-        var sponsor = new npc(2, 8, ["Happy hacking!"], "sponsor");
-        sponsor.name = "sponsor";
-        sponsor.move = "none";
-        npcs.push(sponsor);
-    } else {
-        npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, 32)));
-        npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, 32)));
-    }
+    npcs.push.apply(npcs, npcData.map(npcDatum => new NPC(npcDatum, storySize)));
+    npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, storySize)));
+    npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, storySize)));
 
     if (demo) {
-        updateHackers(processedHackers);
+        updateHackers(processedHackers, storySize);
         updateTeam(team, _.sample(processedHackers, 3));
     }
 
-    init();
+    console.log('loaded in hackers and npcs', npcs);
+
+    init(new Area(
+        [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        'main',
+        32,
+        _player => {
+            _player.x = 0;
+            _player.y = 7 * 32;
+            _player.moving = false;
+            _player.action = "idle";
+            _player.velY = 0;
+            _player.velX = 0;
+        },
+    ));
 
     // block until ready
     while(!allImagesAreReady()) {
         // sleep
         await sleep(1);
     }
+
+    allImagesAreReady(true);
 
     readyAllTheThings();
 
@@ -81,24 +73,24 @@ async function main() {
 function updateTeam(_team, _newTeamMembers) {
     _team.members = _newTeamMembers
 
-    for (var i = 0; i < team.members.length; i++) {
+    for (var i = 0; i < _team.members.length; i++) {
         for (var s = 0; s < 5; s++) {
-            team.teamSkill[s] += team.members[i].skillSet[s];
+            _team.teamSkill[s] += team.members[i].skillSet[s];
         }
     }
 
     for (var m = 0; m < team.members.length; m++) {
-        team.members[m].show = true;
-        team.members[m].x = 224 + 32 * m;
-        team.members[m].y = 256;
-        team.members[m].move = "code";
-        team.members[m].text.push("Let's build a chatbot, | " + player.name + "!");
+        _team.members[m].show = true;
+        _team.members[m].x = 224 + 32 * m;
+        _team.members[m].y = 256;
+        _team.members[m].move = "code";
+        _team.members[m].text.push("Let's build a chatbot, | " + PLAYER_NAME + "!");
     }
 }
 
-function updateHackers(_hackers) {
+function updateHackers(_hackers, _storySize) {
     function _s(x) {
-        return x * storySize;
+        return x * _storySize;
     }
 
     //reset positions
@@ -129,29 +121,9 @@ function updateHackers(_hackers) {
     _hackers[5].boundary = new boundArea(13, 10, 3, 1); // troy
 }
 
-function makeHackers() {
-    let hackers = [
-        new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]),
-        new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]),
-        new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]),
-        new hacker("Anthony", 13, 11, "design", [0, 0, 20, 0, 0]),
-        new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]),
-        new hacker("Troy", 10, 4, "jack", [5, 5, 5, 5, 5])
-    ];
-
-    hackers[0].text[1] = "I'm a deployer - I market | the code and software";
-    hackers[1].text[1] = "I debug the code for errors";
-    hackers[2].text[1] = "I write and develop the | code";
-    hackers[3].text[1] = "I design the architecture | of the code";
-    hackers[4].text[1] = "I research the problem | using information online";
-    hackers[5].text[1] = "I'm like a | jack-of-all-trades | -  I'm good at a lot of | different things!";
-
-    return hackers;
-}
-
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // main loop
-main();
+main(false);

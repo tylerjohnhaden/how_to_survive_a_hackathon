@@ -1,8 +1,9 @@
 export class Hacker {
     constructor(hackerDatum, scale) {
         this.name = hackerDatum.name;
-        this.dialogueLines = hackerDatum.dialogueLines.unshift("Hi! My name is " + this.name + "!");
-        this.dialogueIndex = 0;
+        this.text = hackerDatum.dialogueLines;
+        this.text.unshift("Hi! My name is " + this.name + "!");
+        this.text_index = 0;
         this.skillSet = hackerDatum.skillSet;
 
         // load the skin, will exist before as another image

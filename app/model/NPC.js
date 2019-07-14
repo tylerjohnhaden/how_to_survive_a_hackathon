@@ -1,8 +1,9 @@
 export class NPC {
     constructor(npcDatum, scale) {
         this.name = npcDatum.name;
-        this.dialogueLines = npcDatum.dialogueLines.unshift("Hi! My name is " + this.name + "!");
-        this.dialogueIndex = 0;
+        this.text = npcDatum.dialogueLines;
+        this.text.unshift("Hi! My name is " + this.name + "!");
+        this.text_index = 0;
 
         // load the skin, will exist before as another image
         this.skin = new Image();

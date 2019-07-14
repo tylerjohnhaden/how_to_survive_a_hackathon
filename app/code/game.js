@@ -1,9 +1,11 @@
 // Game code
 
-import { boundArea, npc } from './character.js';
+import { boundArea } from './character.js';
 import { story, triggerWord, play } from './story.js';
 
-export { boundArea, npc };
+export { boundArea };
+
+export const PLAYER_NAME = 'HAX';
 
 // set up the canvas
 var canvas = document.createElement("canvas");
@@ -27,11 +29,13 @@ bgPNG.onload = function () {
     ctx.drawImage(bgPNG, 0, 0);
 };
 
+let area;
+
 // background image
 var hackAreaPNG = new Image();
 hackAreaPNG.src = "./sprites/hackarea.png";
 hackAreaPNG.onload = function () {
-    if (story.scene === "main")
+    if (area.scene === "main")
         ctx.drawImage(hackAreaPNG, 0, 32);
 };
 
@@ -41,7 +45,7 @@ hallwayPNG.src = './sprites/Hallway.png';
 var hallReady = false;
 hallwayPNG.onload = function () {
     hallReady = true;
-    if (story.scene === "hall")
+    if (area.scene === "hall")
         ctx.drawImage(hallwayPNG, 0, 0);
 }
 
@@ -88,11 +92,9 @@ fillerBarIMG.onload = function () {
 
 
 //level
-var map = [];
-var rows = 13;
-var cols = 17;
+//var map = [];
+
 var size = story.size;
-var level_loaded = false;
 var collideTiles = [1];
 var tiles = new Image();
 //tiles.src = "map/tileset.png";
@@ -139,9 +141,9 @@ playerIMG.onload = function () {
     playerReady = true;
 };
 
-export var player = {
+var player = {
     //sprite properties
-    name: "Hax",
+    name: PLAYER_NAME,
     width: 16,
     height: 16,
     skin: playerIMG,
@@ -151,8 +153,8 @@ export var player = {
     speed: 2,
     initPos: 0,
     moving: false,
-    x: 8 * size,
-    y: 4 * size,
+//    x: 8 * size,
+//    y: 4 * size,
     velX: 0,
     velY: 0,
     show: true,
@@ -346,13 +348,13 @@ function goWest(sprite) {
 }
 
 //movement on the map
-function travel(sprite) {
+function travel(sprite, _area) {
     if (sprite.action === "travel") { //continue if allowed to move
         var curspeed = sprite.speed;
 
         //travel north
         if (sprite.dir == "north") {
-            if (Math.floor(sprite.y) > (sprite.initPos - size) && !collide(sprite)) {
+            if (Math.floor(sprite.y) > (sprite.initPos - size) && !collide(_area, sprite)) {
                 sprite.velY = curspeed;
                 sprite.y += velControl(Math.floor(sprite.y), -sprite.velY, (sprite.initPos - size));
                 sprite.moving = true;
@@ -362,7 +364,7 @@ function travel(sprite) {
                 sprite.moving = false;
             }
         } else if (sprite.dir == "south") {
-            if (Math.floor(sprite.y) < (sprite.initPos + size) && !collide(sprite)) {
+            if (Math.floor(sprite.y) < (sprite.initPos + size) && !collide(_area, sprite)) {
                 sprite.velY = curspeed;
                 sprite.y += velControl(Math.floor(sprite.y), sprite.velY, (sprite.initPos + size));
                 sprite.moving = true;
@@ -372,7 +374,7 @@ function travel(sprite) {
                 sprite.moving = false;
             }
         } else if (sprite.dir == "east") {
-            if (Math.floor(sprite.x) < (sprite.initPos + size) && !collide(sprite)) {
+            if (Math.floor(sprite.x) < (sprite.initPos + size) && !collide(_area, sprite)) {
                 sprite.velX = curspeed;
                 sprite.x += velControl(Math.floor(sprite.x), sprite.velX, (sprite.initPos + size));
                 sprite.moving = true;
@@ -382,7 +384,7 @@ function travel(sprite) {
                 sprite.moving = false;
             }
         } else if (sprite.dir == "west") {
-            if (Math.floor(sprite.x) > (sprite.initPos - size) && !collide(sprite)) {
+            if (Math.floor(sprite.x) > (sprite.initPos - size) && !collide(_area, sprite)) {
                 sprite.velX = curspeed;
                 sprite.x += velControl(Math.floor(sprite.x), -sprite.velX, (sprite.initPos - size));
                 sprite.moving = true;
@@ -516,7 +518,7 @@ function faceOpposite(npc) {
 }
 
 //non-cutscene specific behavior
-function defaultBehavior(npc) {
+function defaultBehavior(npc, _area) {
     if (!story.cutscene) {
         if (npc.interact) {
             clearInterval(npc.wt);
@@ -525,7 +527,7 @@ function defaultBehavior(npc) {
         if (npc.move === "drunk_walk" && !npc.interact && npc.show) {
             if (npc.wt == 0 && !npc.moving) {
                 npc.wt = setInterval(function () {
-                    drunkardsWalk(npc, npc.boundary);
+                    drunkardsWalk(_area, npc, npc.boundary);
                     clearInterval(npc.wt);
                     npc.wt = 0;
                 }, (Math.random() * 2 + 1) * 1000);
@@ -542,37 +544,35 @@ function defaultBehavior(npc) {
 
 
 //if hit a collision point on the wall
-function hitWall(sprite) {
-    if (!level_loaded)
-        return false;
-
+function hitWall(sprite, _area) {
     //get the positions
     var rx;
     var ry;
+
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
 
     //edge of map = undecided
     if ((sprite.dir === "west" && rx - 1 < 0) ||
-        (sprite.dir === "east" && rx + 1 >= cols) ||
+        (sprite.dir === "east" && rx + 1 >= _area.cols) ||
         (sprite.dir === "north" && ry - 1 < 0) ||
-        (sprite.dir === "east" && ry + 1 >= rows))
+        (sprite.dir === "east" && ry + 1 >= _area.rows))
         return;
 
     //decide if adjacent to sprite
-    if (sprite.dir == "north" && inArr(collideTiles, map[ry - 1][rx]))
+    if (sprite.dir == "north" && inArr(collideTiles, _area.map[ry - 1][rx]))
         return true;
-    else if (sprite.dir == "south" && inArr(collideTiles, map[ry + 1][rx]))
+    else if (sprite.dir == "south" && inArr(collideTiles, _area.map[ry + 1][rx]))
         return true;
-    else if (sprite.dir == "east" && inArr(collideTiles, map[ry][rx + 1]))
+    else if (sprite.dir == "east" && inArr(collideTiles, _area.map[ry][rx + 1]))
         return true;
-    else if (sprite.dir == "west" && inArr(collideTiles, map[ry][rx - 1]))
+    else if (sprite.dir == "west" && inArr(collideTiles, _area.map[ry][rx - 1]))
         return true;
     else
         return false;
@@ -615,7 +615,7 @@ function hitNPC(sprite) {
 }
 
 //if hit a specific boundary area
-function hitBoundary(sprite, boundary) {
+function hitBoundary(_area, sprite, boundary) {
     //boundary in the form [x,y,w,h]
     if (boundary == null) {
         console.error('Boundaries can\'t be hit if they don\'t exist');
@@ -626,16 +626,16 @@ function hitBoundary(sprite, boundary) {
     var rx;
     var ry;
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
 
     //edge of map = undecided
-    if (rx - 1 < 0 || rx + 1 >= cols || ry - 1 < 0 || ry + 1 >= cols)
+    if (rx - 1 < 0 || rx + 1 >= _area.cols || ry - 1 < 0 || ry + 1 >= _area.cols)
         return;
 
     //get bounding box area
@@ -660,16 +660,17 @@ function hitBoundary(sprite, boundary) {
     return false;
 }
 
-function hitItem(sprite) {
+function hitItem(sprite, _area) {
     //get the positions
     var rx;
     var ry;
+
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
     //decide if adjacent to sprite
@@ -680,8 +681,8 @@ function hitItem(sprite) {
         if (n == sprite || !n.show)
             continue;
 
-        let nx = Math.floor(n.x / size);
-        let ny = Math.floor(n.y / size);
+        let nx = Math.floor(n.x / _area.size);
+        let ny = Math.floor(n.y / _area.size);
 
         if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
             ouch = true;
@@ -723,23 +724,24 @@ function hitOther(sprite, other) {
     return false;
 }
 
-function screenEdge(sprite) {
+function screenEdge(sprite, _area) {
     //get the positions
     var rx;
     var ry;
+
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
     if (sprite.dir == "north" && (ry - 1 < 0))
         return true;
-    else if (sprite.dir == "south" && (ry + 1 == rows))
+    else if (sprite.dir == "south" && (ry + 1 == _area.rows))
         return true;
-    else if (sprite.dir == "east" && (rx + 1 == cols))
+    else if (sprite.dir == "east" && (rx + 1 == _area.cols))
         return true;
     else if (sprite.dir == "west" && (rx - 1 < 0))
         return true;
@@ -748,9 +750,9 @@ function screenEdge(sprite) {
 }
 
 //grouped collision checker
-function collide(sprite, boundary = null) {
+function collide(_area, sprite, boundary = null) {
     //return false;
-    return hitNPC(sprite) || hitWall(sprite) || hitItem(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
+    return hitNPC(sprite) || hitWall(sprite, _area) || hitItem(sprite, _area) || hitBoundary(_area, sprite, boundary) || screenEdge(sprite, _area);
 }
 
 function goodSpot(x, y, _map, _rows, _cols, _npcs, _items) {
@@ -784,29 +786,26 @@ function withinBounds(x, y) {
 }
 
 //have the camera follow the player
-function panCamera() {
-    if (level_loaded) {
+function panCamera(_area) {
         //camera displacement
-        if ((player.x >= (canvas.width / 2)) && (player.x <= (map[0].length * size) - (canvas.width / 2)))
-            camera.x = player.x - (canvas.width / 2);
+    if ((player.x >= (canvas.width / 2)) && (player.x <= (_area.map[0].length * size) - (canvas.width / 2)))
+        camera.x = player.x - (canvas.width / 2);
 
-        if ((player.y >= (canvas.height / 2) - size / 2) && (player.y <= (map.length * size) - (canvas.height / 2)))
-            camera.y = player.y - (canvas.height / 2 - size / 2);
-    }
-
+    if ((player.y >= (canvas.height / 2) - size / 2) && (player.y <= (_area.map.length * size) - (canvas.height / 2)))
+        camera.y = player.y - (canvas.height / 2 - size / 2);
 }
 
 //reset the camera's position on the player
-function resetCamera() {
+function resetCamera(_area) {
     camera.x = 0;
     camera.y = 0;
 
-    if ((player.x > (map[0].length * size) - (canvas.width / 2)))
-        camera.x = (map[0].length * size) - canvas.width;
+    if ((player.x > (_area.map[0].length * size) - (canvas.width / 2)))
+        camera.x = (_area.map[0].length * size) - canvas.width;
 
 
-    if ((player.y > (map.length * size) - (canvas.height / 2)))
-        camera.y = (map.length * size) - canvas.height;
+    if ((player.y > (_area.map.length * size) - (canvas.height / 2)))
+        camera.y = (_area.map.length * size) - canvas.height;
 }
 
 
@@ -814,7 +813,7 @@ function resetCamera() {
 
 
 //random walking
-function drunkardsWalk(sprite, boundary = null) {
+function drunkardsWalk(_area, sprite, boundary = null) {
     var dice;
     var directions = ["north", "south", "west", "east"];
     if (!sprite.moving) {
@@ -832,7 +831,7 @@ function drunkardsWalk(sprite, boundary = null) {
             if (directions.length == 0)
                 return;
 
-        } while (collide(pseudoChar, boundary) || hitOther(pseudoChar, player))
+        } while (collide(_area, pseudoChar, boundary) || hitOther(pseudoChar, player))
 
         //move in direction
         if (pseudoChar.dir === "north") {
@@ -885,7 +884,7 @@ function smallStep(robot) {
 
 ////////////////////////          RENDER         //////////////////////
 
-export function allImagesAreReady() {
+export function allImagesAreReady(verbose=false) {
 
     let namedImages = [
 //        [tiles, 'tiles'],
@@ -907,7 +906,9 @@ export function allImagesAreReady() {
 
         let _decision = (_image && _image.width && _image.width != 0);
 
-        console.log(`-- The image "${_name}" is ready?`, _decision, _image);
+        if (verbose) {
+            console.log(`-- The image "${_name}" is ready?`, _decision, _image);
+        }
 
         return _decision;
     });
@@ -1087,7 +1088,7 @@ function drawBars() {
 }
 
 //render everything
-async function render() {
+async function render(_area) {
     ctx.save();
 
     ctx.translate(-camera.x, -camera.y);
@@ -1101,9 +1102,9 @@ async function render() {
     ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 
     //draw hack are
-    if (story.scene === "main")
+    if (_area.scene === "main")
         ctx.drawImage(hackAreaPNG, 0, 32);
-    else if (story.scene === "hall")
+    else if (_area.scene === "hall")
         ctx.drawImage(hallwayPNG, 0, 0);
 
     //draw the map
@@ -1395,7 +1396,7 @@ function moveKeys() {
 var reInteract = true;
 var cutT = 0;
 
-function actionKeys() {
+function actionKeys(_area) {
     //interact [Z]
     var dialogue = story.dialogue;
     if (keys[a_key] && !player.interact && !player.moving && normal_game_action()) {
@@ -1413,7 +1414,7 @@ function actionKeys() {
                     typewrite();
                 } else {
                     dialogue.index = 0;
-                    play();
+                    play(_area);
                     typewrite();
                 }
                 return;
@@ -1441,7 +1442,7 @@ function actionKeys() {
                 //cutscene interaction
                 else {
                     dialogue.index = 0;
-                    play();
+                    play(_area);
                     typewrite();
                 }
                 return;
@@ -1461,7 +1462,7 @@ function actionKeys() {
                 story.trigger = "> " + story.choice_box.options[story.choice_box.index];
                 story.taskIndex++;
                 dialogue.index = 0;
-                play();
+                play(_area);
                 typewrite();
                 return;
             }
@@ -1519,7 +1520,6 @@ function makeHackArea() {
         [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
         [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
     ];
-    level_loaded = true;
     player.x = 0;
     player.y = 7 * story.size;
     lockMotion(player);
@@ -1537,7 +1537,6 @@ function makeHallArea() {
         [0, 0, 0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 1, 1, 1, 1, 1]
     ]
-    level_loaded = true;
     player.x = 1 * story.size;
     player.y = 3 * story.size;
     story.scene = "hall";
@@ -1553,9 +1552,9 @@ var energyClock = 0;
 var projectClock = 0;
 var projInc = 0;
 
-export function init() {
+export function init(_area) {
     player.show = false;
-    var activations = [null, makeHackArea, randomPosition];
+    var activations = [null, null, randomPosition];
     story.storyFunct = activations;
 
     var playerName = prompt("Enter your name");
@@ -1575,15 +1574,15 @@ export function init() {
         console.log("project increase by: " + projInc);
     }, 7000)
 
-
-    makeHackArea();
-    //makeHallArea();
     story.player = player;
     story.team = team;
     story.player.name = playerName;
     player.show = true
 
     story.quest = "Demo";
+
+    area = _area;
+    area.setToStart(player);
 }
 
 // todo: figure out what this is supposed to do
@@ -1591,64 +1590,48 @@ function startGame() {
     story.quest = "Register";
     story.trigger = "start_game";
     makeHallArea();
-    //resetCamera();
+    //resetCamera(area);
 }
 
 
-function randomPosition(item) {
-    var x = Math.floor(Math.random() * cols);
-    var y = Math.floor(Math.random() * rows);
-    while (!goodSpot(x, y, map, rows, cols, npcs, items)) {
-        x = Math.floor(Math.random() * cols);
-        y = Math.floor(Math.random() * rows);
-    }
-    item.x = x * story.size;
-    item.y = y * story.size;
-}
+function randomPosition(item, _area) {
+    let x = Math.floor(Math.random() * _area.cols);
+    let y = Math.floor(Math.random() * _area.rows);
 
-export function hack(members) {
-    team.members = members;
-
-    for (var i = 0; i < team.members.length; i++) {
-        for (var s = 0; s < 5; s++) {
-            team.teamSkill[s] += team.members[i].skillSet[s];
-        }
+    while (!goodSpot(x, y, _area.map, _area.rows, _area.cols, npcs, items)) {
+        x = Math.floor(Math.random() * _area.cols);
+        y = Math.floor(Math.random() * _area.rows);
     }
 
-    for (var m = 0; m < members.length; m++) {
-        members[m].show = true;
-        members[m].x = 224 + 32 * m;
-        members[m].y = 256;
-        members[m].move = "code";
-        members[m].text.push("Let's build a chatbot, | " + player.name + "!");
-    }
+    item.x = x * _area.storySize;
+    item.y = y * _area.storySize;
 }
 
 export function animate() {
     requestAnimationFrame(animate);
     canvas.focus();
-    render();
+    render(area);
 
-    play();
+    play(area);
 
     //player movement
     var pixX = Math.round(player.x / size);
     var pixY = Math.round(player.y / size);
 
     if (!story.pause) {
-        travel(player);
+        travel(player, area);
         if (player.action == "travel")
             story.trigger = "x" + pixX + "_y" + pixY;
     }
 
-    panCamera();
+    panCamera(area);
 
     //npc movement
     if (!story.pause) {
         for (var n = 0; n < npcs.length; n++) {
             var npc = npcs[n];
-            travel(npc);
-            defaultBehavior(npc);
+            travel(npc, area);
+            defaultBehavior(npc, area);
         }
     }
 
@@ -1674,7 +1657,7 @@ export function animate() {
         keyTick = 0;
     }
     moveKeys();
-    actionKeys();
+    actionKeys(area);
 
 
     if (team.energy <= 0 && !stopped) {

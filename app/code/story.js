@@ -107,7 +107,7 @@ function endChoice() {
     story.choice_box.lines = [];
 }
 
-export function play() {
+export function play(_area) {
     //make local variables
     var trigger = story.trigger;
     var storyIndex = story.storyIndex;
@@ -132,7 +132,7 @@ export function play() {
                 for (var t = 0; t < 5; t++) {
                     story.team.teamSkill[t] += 5;
                 }
-                story.storyFunct[2](player.other);
+                story.storyFunct[2](player.other, _area);
                 endScene();
             }
         } else if (trigger === "touch_wifi") {
@@ -142,7 +142,7 @@ export function play() {
 
             } else if (taskIndex == 1) {
                 story.projectProg += 2;
-                story.storyFunct[2](player.other);
+                story.storyFunct[2](player.other, _area);
                 endScene();
             }
         } else if (trigger === "touch_coffee") {
@@ -152,7 +152,7 @@ export function play() {
 
             } else if (taskIndex == 1) {
                 story.team.energy += 10;
-                story.storyFunct[2](player.other);
+                story.storyFunct[2](player.other, _area);
                 endScene();
             }
         } else if (trigger === "touch_redbull") {
@@ -162,7 +162,7 @@ export function play() {
 
             } else if (taskIndex == 1) {
                 story.team.energy += 15;
-                story.storyFunct[2](player.other);
+                story.storyFunct[2](player.other, _area);
                 endScene();
             }
         } else if (trigger === "touch_project") {
@@ -189,11 +189,11 @@ export function play() {
             }
         }
 
-        if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && story.scene === "hall") {
+        if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && _area.scene === "hall") {
             story.storyFunct[1]();
             alert('ee');
         }
-        if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && story.scene === "main") {
+        if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && _area.scene === "main") {
             story.cutscene = true;
             if (taskIndex == 0) {
                 newDialog(["...", player.name + ": There's so many | people...",
