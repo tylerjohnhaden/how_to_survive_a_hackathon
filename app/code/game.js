@@ -1,6 +1,6 @@
 // Game code
 
-import { boundArea, hacker, npc } from './character.js';
+import { boundArea, npc } from './character.js';
 import { story, triggerWord, play } from './story.js';
 
 export { boundArea };
@@ -110,7 +110,7 @@ var camera = {
 
 //lists
 var items = [];
-var npcs = [];
+export var npcs = [];
 
 
 // directionals
@@ -285,7 +285,6 @@ function invisItem(name, x, y, text) {
 }
 
 
-export let hackers = [];
 var spectators = [];
 var organizers = [];
 var sponsors = [];
@@ -313,7 +312,6 @@ function inArr(arr, e) {
 
 //directional movement
 function goNorth(sprite) {
-    console.log('here 3', size);
     if (!sprite.moving) {
         sprite.initPos = Math.floor(sprite.y / size) * size;
         sprite.lastPos = [Math.floor(sprite.x / size), Math.floor(sprite.y / size)];
@@ -473,8 +471,6 @@ function canInteract(sprite, item) {
         return true;
     else if (sprite.dir === "west" && (inArr(xArea, rx - 1) && inArr(yArea, ry)))
         return true;
-
-    //console.log(sprite.dir + " " + xArea + " " + yArea);
 
     return false;
 }
@@ -654,8 +650,6 @@ function hitBoundary(sprite, boundary) {
         yArea.push(boundary.y + z);
     }
 
-    //console.log(xArea + "\t" + yArea);
-
     if (sprite.dir == "north" && (!inArr(xArea, rx) || !inArr(yArea, ry - 1)))
         return true;
     else if (sprite.dir == "south" && (!inArr(xArea, rx) || !inArr(yArea, ry + 1)))
@@ -761,20 +755,21 @@ function collide(sprite, boundary = null) {
     return hitNPC(sprite) || hitWall(sprite) || hitItem(sprite) || hitBoundary(sprite, boundary) || screenEdge(sprite);
 }
 
-function goodSpot(x, y) {
-    for (var r = 0; r < rows; r++) {
-        for (var c = 0; c < cols; c++) {
-            if (r == y && c == x && map[r][c] == 1)
+function goodSpot(x, y, _map, _rows, _cols, _npcs, _items) {
+    for (var r = 0; r < _rows; r++) {
+        for (var c = 0; c < _cols; c++) {
+            if (r == y && c == x && _map[r][c] == 1) {
                 return false;
+            }
         }
     }
 
-    for (var a = 0; a < npcs; a++) {
-        if (npcs[a].x == x && npcs[a].y == y)
+    for (var a = 0; a < _npcs; a++) {
+        if (_npcs[a].x == x && _npcs[a].y == y)
             return false;
     }
-    for (var b = 0; b < items; b++) {
-        if (items[b].x == x && items[b].y == y)
+    for (var b = 0; b < _items; b++) {
+        if (_items[b].x == x && _items[b].y == y)
             return false;
     }
     return true;
@@ -786,7 +781,6 @@ function goodSpot(x, y) {
 
 //if within the game bounds
 function withinBounds(x, y) {
-console.log('here 8', story.size, size);
     var xBound = (x >= Math.floor(camera.x / story.size) - 1) && (x <= Math.floor(camera.x / story.size) + (canvas.width / story.size));
     return xBound;
 }
@@ -811,9 +805,6 @@ function resetCamera() {
 
     if ((player.x > (map[0].length * size) - (canvas.width / 2)))
         camera.x = (map[0].length * size) - canvas.width;
-
-
-console.log('here 6', story.size, size);
 
 
     if ((player.y > (map.length * size) - (canvas.height / 2)))
@@ -896,12 +887,46 @@ function smallStep(robot) {
 
 ////////////////////////          RENDER         //////////////////////
 
+export function allImagesAreReady() {
+
+    let namedImages = [
+//        [tiles, 'tiles'],
+        [playerIMG, 'playerIMG'],
+        [dialogIMG, 'dialogIMG'],
+        [projectBarIMG, 'projectBarIMG'],
+        [teamBarIMG, 'teamBarIMG'],
+        [energyBarIMG, 'energyBarIMG'],
+        [fillerBarIMG, 'fillerBarIMG'],
+        [hallwayPNG, 'hallwayPNG'],
+    ];
+
+    namedImages.push.apply(namedImages, npcs.map(npc => [npc.img, `npc(${npc.name})`]));
+    namedImages.push.apply(namedImages, items.map(item => [item.img, `npc(${item.name})`]));
+
+    return namedImages.every(namedImage => {
+        let _image = namedImage[0];
+        let _name = namedImage[1];
+
+        let _decision = (_image && _image.width && _image.width != 0);
+
+        console.log(`-- The image "${_name}" is ready?`, _decision, _image);
+
+        return _decision;
+    });
+}
+
+export function readyAllTheThings() {
+    npcs.forEach(npc => {
+        npc.ready = true;
+    });
+
+    items.forEach(item => {
+        item.ready = true;
+    });
+}
+
 //check for render ok
 function checkRender() {
-
-//    for (let i = 0; i < 100000000000000; i ++) {
-//        var k = 9837450 * i;
-//    }
 
     //tiles
     if (!tilesReady) {
@@ -930,7 +955,7 @@ function checkRender() {
     //npcs
     for (var a = 0; a < npcs.length; a++) {
         if (!npcs[a].ready) {
-            if (npcs[a].img.width !== 0) {
+            if (npcs[a].skin.width !== 0) {
                 npcs[a].ready = true;
             }
         }
@@ -978,8 +1003,7 @@ function checkRender() {
 
 
 function drawchar(sprite) {
-    if (sprite.ready && sprite.show)
-        ctx.drawImage(sprite.img, sprite.x, sprite.y);
+    ctx.drawImage(sprite.img, sprite.x, sprite.y);
 }
 
 ////draw a character sprite
@@ -1064,11 +1088,8 @@ function drawBars() {
     ctx2.fillText(team.teamSkill[4], 272, 46);
 }
 
-
 //render everything
-function render() {
-//    alert('about to render');
-    checkRender();
+async function render() {
     ctx.save();
 
     ctx.translate(-camera.x, -camera.y);
@@ -1249,7 +1270,6 @@ function typewrite() {
         }
         curText = curText.replace(/<[0-9]+>/g, ""); //catch the stragler
         tw = 0;
-        //console.log("restart")
         curLine = 0;
         clearText();
         ctx.font = "16px Courier";
@@ -1278,7 +1298,6 @@ function typewrite() {
     } else {
         texting = false;
         clearTimeout(text_time);
-        //console.log("done");
     }
 }
 
@@ -1506,9 +1525,7 @@ function makeHackArea() {
     player.x = 0;
     player.y = 7 * story.size;
     lockMotion(player);
-    hackers = makeHackers();
-    console.log(hackers);
-    makeSpectators();
+//    makeSpectators();
     story.scene = "main";
 
     var organizer = new npc(8, 2, ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "organizer");
@@ -1545,46 +1562,20 @@ function makeHallArea() {
 
 }
 
-export function makeHackers() {
-    let hackers = [
-        new hacker("Mac", 1, 2, "deployment", [20, 0, 0, 0, 0]),
-        new hacker("Sonia", 3, 5, "debugger", [0, 0, 0, 20, 0]),
-        new hacker("Nick", 15, 8, "developer", [0, 20, 0, 0, 0]),
-        new hacker("Anthony", 13, 11, "design", [0, 0, 20, 0, 0]),
-        new hacker("Belle", 13, 5, "researcher", [0, 0, 0, 0, 20]),
-        new hacker("Troy", 10, 4, "jack", [5, 5, 5, 5, 5])
+export function makeSpectators() {
+    let spectators = [
+        new npc(10, 3, ["Hack the Planet!"], "npc1"),
+        new npc(5, 1, ["Hack the Planet!"], "npc2"),
+        new npc(12, 7, ["Hack the Planet!"], "npc3"),
+        new npc(3, 10, ["Hack the Planet!"], "npc4"),
+        new npc(11, 11, ["Hack the Planet!"], "npc5"),
     ];
 
-    hackers[0].text[1] = "I'm a deployer - I market | the code and software";
-    hackers[1].text[1] = "I debug the code for errors";
-    hackers[2].text[1] = "I write and develop the | code";
-    hackers[3].text[1] = "I design the architecture | of the code";
-    hackers[4].text[1] = "I research the problem | using information online";
-    hackers[5].text[1] = "I'm like a | jack-of-all-trades | -  I'm good at a lot of | different things!";
-
-    return hackers;
-}
-
-function makeSpectators() {
-    spectators = [];
-    var spect1 = new npc(10, 3, ["Hack the Planet!"], "npc1");
-    var spect2 = new npc(5, 1, ["Hack the Planet!"], "npc2");
-    var spect3 = new npc(12, 7, ["Hack the Planet!"], "npc3");
-    var spect4 = new npc(3, 10, ["Hack the Planet!"], "npc4");
-    var spect5 = new npc(11, 11, ["Hack the Planet!"], "npc5");
-
-
-    for (var s = 0; s < spectators; s++) {
-        spectators.show = true;
+    for (var s = 0; s < spectators.length; s++) {
+        spectators[0].show = true;
     }
 
-    spectators.push(spect1);
-    spectators.push(spect2);
-    spectators.push(spect3);
-    spectators.push(spect4);
-    spectators.push(spect5);
-
-    npcs.push.apply(npcs, spectators);
+    return spectators;
 }
 
 var hackClock = 0;
@@ -1592,8 +1583,6 @@ var timeLeft = 2160;
 var energyClock = 0;
 var projectClock = 0;
 var projInc = 0;
-
-console.log('here 111');
 
 export function init() {
     player.show = false;
@@ -1639,7 +1628,7 @@ export function startGame() {
 function randomPosition(item) {
     var x = Math.floor(Math.random() * cols);
     var y = Math.floor(Math.random() * rows);
-    while (!goodSpot(x, y)) {
+    while (!goodSpot(x, y, map, rows, cols, npcs, items)) {
         x = Math.floor(Math.random() * cols);
         y = Math.floor(Math.random() * rows);
     }
@@ -1665,8 +1654,8 @@ export function hack(members) {
     }
 }
 
-function main() {
-    requestAnimationFrame(main);
+export function animate() {
+    requestAnimationFrame(animate);
     canvas.focus();
     render();
 
@@ -1746,14 +1735,3 @@ function stopGame() {
     stopped = true;
 }
 
-/*
-//prevent scrolling with the game
-window.addEventListener("keydown", function(e) {
-    // space and arrow keys
-    if(([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1)){
-        e.preventDefault();
-    }
-}, false);
-*/
-
-main();

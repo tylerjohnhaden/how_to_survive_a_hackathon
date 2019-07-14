@@ -13,12 +13,9 @@ function getIMGNPC(name) {
     var charIMG = new Image();
     charIMG.src = "./sprites/" + name + ".png";
 
-
-
     var charReady = false;
     charIMG.onload = function () {
         charReady = true;
-        console.log('ready', name);
     };
 
     this.img = charIMG;
