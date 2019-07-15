@@ -5,55 +5,31 @@ import { story, triggerWord, play } from './story.js';
 export const PLAYER_NAME = 'HAX';
 
 // set up the canvas
-var canvas = document.createElement("canvas");
-canvas.id = "game";
-var ctx = canvas.getContext("2d");
-canvas.width = 288;
-canvas.height = 224;
-document.body.appendChild(canvas);
+function setupCanvas(id, w, h) {
+    let canvas = document.createElement('canvas');
+    canvas.id = id;
+    canvas.width = w;
+    canvas.height = h;
 
-var guiCanvas = document.createElement("canvas");
-guiCanvas.id = "guiCanvas";
-var ctx2 = guiCanvas.getContext("2d");
-guiCanvas.width = 288;
-guiCanvas.height = 54;
-document.body.appendChild(guiCanvas);
+    document.body.appendChild(canvas);
 
-// background image
-var bgPNG = new Image();
-bgPNG.src = "./sprites/background.png";
-bgPNG.onload = function () {
-    ctx.drawImage(bgPNG, 0, 0);
-};
-
-let area;
-
-// background image
-var hackAreaPNG = new Image();
-hackAreaPNG.src = "./sprites/hackarea.png";
-hackAreaPNG.onload = function () {
-    if (area.scene === "main")
-        ctx.drawImage(hackAreaPNG, 0, 32);
-};
-
-// hallway
-var hallwayPNG = new Image();
-hallwayPNG.src = './sprites/Hallway.png';
-var hallReady = false;
-hallwayPNG.onload = function () {
-    hallReady = true;
-    if (area.scene === "hall")
-        ctx.drawImage(hallwayPNG, 0, 0);
+    return canvas;
 }
+
+let canvas = setupCanvas('game', 288, 224);
+let ctx = canvas.getContext('2d');
+
+let guiCanvas = setupCanvas('guiCanvas', 288, 54);
+let ctx2 = guiCanvas.getContext('2d');
+
+// background image
+let area;
+let areaImage;
+let backgroundImage;
 
 //////   gui   //////
 //dialog
-var dialogIMG = new Image();
-dialogIMG.src = './sprites/dialog_box.png';
-var dialogReady = false;
-dialogIMG.onload = function () {
-    dialogReady = true;
-};
+let dialogImage;
 
 //project bar progress
 var projectBarIMG = new Image();
@@ -882,12 +858,13 @@ export function allImagesAreReady(verbose=false) {
     let namedImages = [
 //        [tiles, 'tiles'],
         [playerIMG, 'playerIMG'],
-        [dialogIMG, 'dialogIMG'],
+        [dialogImage, 'dialogImage'],
         [projectBarIMG, 'projectBarIMG'],
         [teamBarIMG, 'teamBarIMG'],
         [energyBarIMG, 'energyBarIMG'],
         [fillerBarIMG, 'fillerBarIMG'],
-        [hallwayPNG, 'hallwayPNG'],
+        [areaImage, 'areaImage'],
+//        [hallwayPNG, 'hallwayPNG'],
     ];
 
     namedImages.push.apply(namedImages, npcs.map(npc => [npc.skin, `npc(${npc.name})`]));
@@ -917,81 +894,81 @@ export function readyAllTheThings() {
     });
 }
 
-//check for render ok
-function checkRender() {
-
-    //tiles
-    if (!tilesReady) {
-        tiles.onload = function () {
-            tilesReady = true;
-        };
-    }
-
-    if (!hallReady) {
-        hallwayPNG.onload = function () {
-            hallReady = true;
-        };
-    }
-
-
-    //player
-    if (!player.ready) {
-        player.skin.onload = function () {
-            player.ready = true;
-        }
-        if (player.skin.width !== 0) {
-            player.ready = true;
-        }
-    }
-
-    //npcs
-    for (var a = 0; a < npcs.length; a++) {
-        if (!npcs[a].ready) {
-            if (npcs[a].skin.width !== 0) {
-                npcs[a].ready = true;
-            }
-        }
-    }
-
-    //item
-    for (var i = 0; i < items.length; i++) {
-        if (!items[i].ready) {
-            if (items[i].skin.width !== 0) {
-                items[i].ready = true;
-            }
-        }
-    }
-
-
-    //dialogue
-    if (!dialogReady) {
-        dialogIMG.onload = function () {
-            dialogReady = true;
-        };
-    }
-
-    //gui bars
-    if (!energyReady) {
-        projectBarIMG.onload = function () {
-            projectBarReady = true;
-        };
-    }
-    if (!teamBarReady) {
-        teamBarIMG.onload = function () {
-            teamBarReady = true;
-        };
-    }
-    if (!energyBarIMG) {
-        energyBarIMG.onload = function () {
-            energyReady = true;
-        };
-    }
-    if (!fillerReady) {
-        fillerBarIMG.onload = function () {
-            fillerReady = true;
-        };
-    }
-}
+////check for render ok
+//function checkRender() {
+//
+//    //tiles
+//    if (!tilesReady) {
+//        tiles.onload = function () {
+//            tilesReady = true;
+//        };
+//    }
+//
+//    if (!hallReady) {
+//        hallwayPNG.onload = function () {
+//            hallReady = true;
+//        };
+//    }
+//
+//
+//    //player
+//    if (!player.ready) {
+//        player.skin.onload = function () {
+//            player.ready = true;
+//        }
+//        if (player.skin.width !== 0) {
+//            player.ready = true;
+//        }
+//    }
+//
+//    //npcs
+//    for (var a = 0; a < npcs.length; a++) {
+//        if (!npcs[a].ready) {
+//            if (npcs[a].skin.width !== 0) {
+//                npcs[a].ready = true;
+//            }
+//        }
+//    }
+//
+//    //item
+//    for (var i = 0; i < items.length; i++) {
+//        if (!items[i].ready) {
+//            if (items[i].skin.width !== 0) {
+//                items[i].ready = true;
+//            }
+//        }
+//    }
+//
+//
+//    //dialogue
+//    if (!dialogReady) {
+//        dialogImage.onload = function () {
+//            dialogReady = true;
+//        };
+//    }
+//
+//    //gui bars
+//    if (!energyReady) {
+//        projectBarIMG.onload = function () {
+//            projectBarReady = true;
+//        };
+//    }
+//    if (!teamBarReady) {
+//        teamBarIMG.onload = function () {
+//            teamBarReady = true;
+//        };
+//    }
+//    if (!energyBarIMG) {
+//        energyBarIMG.onload = function () {
+//            energyReady = true;
+//        };
+//    }
+//    if (!fillerReady) {
+//        fillerBarIMG.onload = function () {
+//            fillerReady = true;
+//        };
+//    }
+//}
 
 
 function drawchar(sprite) {
@@ -1089,21 +1066,23 @@ async function render(_area) {
     //clear eveoything
     ctx.clearRect(camera.x, camera.y, canvas.width, canvas.height);
 
+
+
+    ctx.drawImage(backgroundImage, 0, 0);
+
     //re-draw bg
-    var ptrn = ctx.createPattern(bgPNG, 'repeat'); // Create a pattern with this image, and set it to "repeat".
+    var ptrn = ctx.createPattern(backgroundImage, 'repeat'); // Create a pattern with this image, and set it to "repeat".
     ctx.fillStyle = ptrn;
     ctx.fillRect(camera.x, camera.y, canvas.width, canvas.height);
 
-    //draw hack are
-    if (_area.scene === "main")
-        ctx.drawImage(hackAreaPNG, 0, 32);
-    else if (_area.scene === "hall")
-        ctx.drawImage(hallwayPNG, 0, 0);
+    //draw hack area
+    if (_area.scene === "main") {
+        ctx.drawImage(areaImage, 0, 32);
+    } else if (_area.scene === "hall") {
+        ctx.drawImage(areaImage, 0, 0);
+    }
 
-    //draw the map
-    //drawMap();
-
-    //draw the buildings if behind player
+    // draw the buildings if behind player
 
     for (var i = 0; i < items.length; i++) {
         renderItem(items[i]);
@@ -1141,8 +1120,8 @@ function drawGUI() {
 function drawDialog() {
     var dialogue = story.dialogue;
     var choice = story.choice_box;
-    if (dialogue.show && dialogReady) {
-        ctx.drawImage(dialogIMG, camera.x, camera.y);
+    if (dialogue.show) {
+        ctx.drawImage(dialogImage, camera.x, camera.y);
         //wrapText(dialogue.text[dialogue.index], camera.x + 12, camera.y + 116)
         showText();
 
@@ -1551,6 +1530,19 @@ export function init(_area) {
     story.quest = "Demo";
 
     area = _area;
+
+    backgroundImage = new Image();
+    backgroundImage.src = "./sprites/background.png";
+
+    dialogImage = new Image();
+    dialogImage.src = './sprites/dialog_box.png';
+
+    areaImage = new Image();
+    if (area.scene === 'main') {
+        areaImage.src = "./sprites/hackarea.png";
+    } else if (area.scene === 'hall') {
+        areaImage.src = "./sprites/Hallway.png";
+    }
 
     player.moving = false;
     player.action = "idle";

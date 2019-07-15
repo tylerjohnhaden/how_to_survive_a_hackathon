@@ -2,7 +2,7 @@
 
 import { _ } from './lib/underscore.js'
 
-import { hackerData, npcData, organizerData, sponsorData, areaData } from './data/data.js';
+import { hackerData, npcData, organizerData, sponsorData, areaData } from './data.js';
 
 import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
