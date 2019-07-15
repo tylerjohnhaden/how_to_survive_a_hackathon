@@ -7,28 +7,26 @@ import { hackerData, npcData, organizerData, sponsorData, areaData } from './dat
 import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
 import { Area } from './model/Area.js';
-//import { Player } from './model/Player.js';
 
-import { init, boundArea, team, PLAYER_NAME, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
-import { hacker } from './code/character.js';
+import { init, team, PLAYER_NAME, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
 
 async function main(demo) {
-    const storySize = 32;
+    let area = init(new Area(areaData.find(areaDatum => areaDatum.scene == 'main')));
 
-    let processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, storySize));
+    let processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, area.size));
     npcs.push.apply(npcs, processedHackers);
-    npcs.push.apply(npcs, npcData.map(npcDatum => new NPC(npcDatum, storySize)));
-    npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, storySize)));
-    npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, storySize)));
+    npcs.push.apply(npcs, npcData.map(npcDatum => new NPC(npcDatum, area.size)));
+    npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, area.size)));
+    npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, area.size)));
 
     if (demo) {
-        updateHackers(processedHackers, storySize);
+        updateHackers(processedHackers, area.size);
         updateTeam(team, _.sample(processedHackers, 3));
     }
 
     console.log('loaded in hackers and npcs', npcs);
 
-    init(new Area(areaData.find(areaDatum => areaDatum.scene == 'main')));
+
 
     // block until ready
     while(!allImagesAreReady()) {
@@ -86,6 +84,13 @@ function updateHackers(_hackers, _storySize) {
     _hackers[5].x = _s(15);
     _hackers[5].y = _s(10);
 
+    function boundArea(x, y, w, h) {
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+    }
+
     // set boundaries
     _hackers[0].boundary = new boundArea(1, 2, 3, 1); // mac
     _hackers[1].boundary = new boundArea(1, 5, 3, 1); // sonia
@@ -100,4 +105,4 @@ function sleep(ms) {
 }
 
 // main loop
-main(false);
+main(true);

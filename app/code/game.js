@@ -1,9 +1,6 @@
 // Game code
 
-import { boundArea } from './character.js';
 import { story, triggerWord, play } from './story.js';
-
-export { boundArea };
 
 export const PLAYER_NAME = 'HAX';
 
@@ -91,10 +88,6 @@ fillerBarIMG.onload = function () {
 };
 
 
-//level
-//var map = [];
-
-var size = story.size;
 var collideTiles = [1];
 var tiles = new Image();
 //tiles.src = "map/tileset.png";
@@ -153,8 +146,6 @@ var player = {
     speed: 2,
     initPos: 0,
     moving: false,
-//    x: 8 * size,
-//    y: 4 * size,
     velX: 0,
     velY: 0,
     show: true,
@@ -311,37 +302,37 @@ function inArr(arr, e) {
 //////////////////  PLAYER CONTROLS /////////////////
 
 //directional movement
-function goNorth(sprite) {
+function goNorth(sprite, _area) {
     if (!sprite.moving) {
-        sprite.initPos = Math.floor(sprite.y / size) * size;
-        sprite.lastPos = [Math.floor(sprite.x / size), Math.floor(sprite.y / size)];
+        sprite.initPos = Math.floor(sprite.y / _area.size) * _area.size;
+        sprite.lastPos = [Math.floor(sprite.x / _area.size), Math.floor(sprite.y / _area.size)];
         sprite.dir = "north";
         sprite.action = "travel";
     }
 }
 
-function goSouth(sprite) {
+function goSouth(sprite, _area) {
     if (!sprite.moving) {
-        sprite.initPos = Math.floor(sprite.y / size) * size;
-        sprite.lastPos = [Math.floor(sprite.x / size), Math.floor(sprite.y / size)];
+        sprite.initPos = Math.floor(sprite.y / _area.size) * _area.size;
+        sprite.lastPos = [Math.floor(sprite.x / _area.size), Math.floor(sprite.y / _area.size)];
         sprite.dir = "south";
         sprite.action = "travel";
     }
 }
 
-function goEast(sprite) {
+function goEast(sprite, _area) {
     if (!sprite.moving) {
-        sprite.initPos = Math.floor(sprite.x / size) * size;
-        sprite.lastPos = [Math.floor(sprite.x / size), Math.floor(sprite.y / size)];
+        sprite.initPos = Math.floor(sprite.x / _area.size) * _area.size;
+        sprite.lastPos = [Math.floor(sprite.x / _area.size), Math.floor(sprite.y / _area.size)];
         sprite.dir = "east";
         sprite.action = "travel";
     }
 }
 
-function goWest(sprite) {
+function goWest(sprite, _area) {
     if (!sprite.moving) {
-        sprite.initPos = Math.floor(sprite.x / size) * size;
-        sprite.lastPos = [Math.floor(sprite.x / size), Math.floor(sprite.y / size)];
+        sprite.initPos = Math.floor(sprite.x / _area.size) * _area.size;
+        sprite.lastPos = [Math.floor(sprite.x / _area.size), Math.floor(sprite.y / _area.size)];
         sprite.dir = "west";
         sprite.action = "travel";
     }
@@ -354,9 +345,9 @@ function travel(sprite, _area) {
 
         //travel north
         if (sprite.dir == "north") {
-            if (Math.floor(sprite.y) > (sprite.initPos - size) && !collide(_area, sprite)) {
+            if (Math.floor(sprite.y) > (sprite.initPos - _area.size) && !collide(_area, sprite)) {
                 sprite.velY = curspeed;
-                sprite.y += velControl(Math.floor(sprite.y), -sprite.velY, (sprite.initPos - size));
+                sprite.y += velControl(Math.floor(sprite.y), -sprite.velY, (sprite.initPos - _area.size));
                 sprite.moving = true;
             } else {
                 sprite.velY = 0;
@@ -364,9 +355,9 @@ function travel(sprite, _area) {
                 sprite.moving = false;
             }
         } else if (sprite.dir == "south") {
-            if (Math.floor(sprite.y) < (sprite.initPos + size) && !collide(_area, sprite)) {
+            if (Math.floor(sprite.y) < (sprite.initPos + _area.size) && !collide(_area, sprite)) {
                 sprite.velY = curspeed;
-                sprite.y += velControl(Math.floor(sprite.y), sprite.velY, (sprite.initPos + size));
+                sprite.y += velControl(Math.floor(sprite.y), sprite.velY, (sprite.initPos + _area.size));
                 sprite.moving = true;
             } else {
                 sprite.velY = 0;
@@ -374,9 +365,9 @@ function travel(sprite, _area) {
                 sprite.moving = false;
             }
         } else if (sprite.dir == "east") {
-            if (Math.floor(sprite.x) < (sprite.initPos + size) && !collide(_area, sprite)) {
+            if (Math.floor(sprite.x) < (sprite.initPos + _area.size) && !collide(_area, sprite)) {
                 sprite.velX = curspeed;
-                sprite.x += velControl(Math.floor(sprite.x), sprite.velX, (sprite.initPos + size));
+                sprite.x += velControl(Math.floor(sprite.x), sprite.velX, (sprite.initPos + _area.size));
                 sprite.moving = true;
             } else {
                 sprite.velX = 0;
@@ -384,9 +375,9 @@ function travel(sprite, _area) {
                 sprite.moving = false;
             }
         } else if (sprite.dir == "west") {
-            if (Math.floor(sprite.x) > (sprite.initPos - size) && !collide(_area, sprite)) {
+            if (Math.floor(sprite.x) > (sprite.initPos - _area.size) && !collide(_area, sprite)) {
                 sprite.velX = curspeed;
-                sprite.x += velControl(Math.floor(sprite.x), -sprite.velX, (sprite.initPos - size));
+                sprite.x += velControl(Math.floor(sprite.x), -sprite.velX, (sprite.initPos - _area.size));
                 sprite.moving = true;
             } else {
                 sprite.velX = 0;
@@ -428,7 +419,7 @@ function lockMotion(sprite) {
 
 
 //the interact function
-function canInteract(sprite, item) {
+function canInteract(sprite, item, _area) {
     if (!item.show)
         return false;
 
@@ -436,11 +427,11 @@ function canInteract(sprite, item) {
     var rx;
     var ry;
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
     //decide if adjacent to sprite
@@ -458,8 +449,8 @@ function canInteract(sprite, item) {
             yArea.push(t_ba.y + t.y + z);
         }
     } else {
-        xArea.push(Math.ceil(t.x / size));
-        yArea.push(Math.ceil(t.y / size));
+        xArea.push(Math.ceil(t.x / _area.size));
+        yArea.push(Math.ceil(t.y / _area.size));
     }
 
     //determine if able to interact
@@ -476,7 +467,7 @@ function canInteract(sprite, item) {
 }
 
 //the talk function
-function canTalk(sprite, other_pers) {
+function canTalk(sprite, other_pers, _area) {
     if (other_pers.moving || !other_pers.show)
         return false;
 
@@ -484,16 +475,16 @@ function canTalk(sprite, other_pers) {
     var rx;
     var ry;
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
     //decide if adjacent to sprite
-    let nx = Math.floor(other_pers.x / size);
-    let ny = Math.floor(other_pers.y / size);
+    let nx = Math.floor(other_pers.x / _area.size);
+    let ny = Math.floor(other_pers.y / _area.size);
 
     if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
         return true;
@@ -579,16 +570,16 @@ function hitWall(sprite, _area) {
 }
 
 //if hit another sprite
-function hitNPC(sprite) {
+function hitNPC(sprite, _area) {
     //get the positions
     var rx;
     var ry;
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
 
     //decide if adjacent to sprite
@@ -599,8 +590,8 @@ function hitNPC(sprite) {
         if (n == sprite || !n.show)
             continue;
 
-        let nx = Math.floor(n.x / size);
-        let ny = Math.floor(n.y / size);
+        let nx = Math.floor(n.x / _area.size);
+        let ny = Math.floor(n.y / _area.size);
 
         if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
             ouch = true;
@@ -697,20 +688,20 @@ function hitItem(sprite, _area) {
 }
 
 //if hit another generic object
-function hitOther(sprite, other) {
+function hitOther(sprite, other, _area) {
     //get the positions
     var rx;
     var ry;
     if (sprite.dir === "north" || sprite.dir === "west") {
-        rx = Math.ceil(sprite.x / size);
-        ry = Math.ceil(sprite.y / size);
+        rx = Math.ceil(sprite.x / _area.size);
+        ry = Math.ceil(sprite.y / _area.size);
     } else if (sprite.dir === "south" || sprite.dir === "east") {
-        rx = Math.floor(sprite.x / size);
-        ry = Math.floor(sprite.y / size);
+        rx = Math.floor(sprite.x / _area.size);
+        ry = Math.floor(sprite.y / _area.size);
     }
     //decide if adjacent to sprite
-    var nx = Math.floor(other.x / size);
-    var ny = Math.floor(other.y / size);
+    var nx = Math.floor(other.x / _area.size);
+    var ny = Math.floor(other.y / _area.size);
 
     if (sprite.dir == "north" && (rx == nx) && (ry - 1 == ny))
         return true;
@@ -752,7 +743,8 @@ function screenEdge(sprite, _area) {
 //grouped collision checker
 function collide(_area, sprite, boundary = null) {
     //return false;
-    return hitNPC(sprite) || hitWall(sprite, _area) || hitItem(sprite, _area) || hitBoundary(_area, sprite, boundary) || screenEdge(sprite, _area);
+    console.log('collide');
+    return hitNPC(sprite, _area) || hitWall(sprite, _area) || hitItem(sprite, _area) || hitBoundary(_area, sprite, boundary) || screenEdge(sprite, _area);
 }
 
 function goodSpot(x, y, _map, _rows, _cols, _npcs, _items) {
@@ -779,20 +771,20 @@ function goodSpot(x, y, _map, _rows, _cols, _npcs, _items) {
 ///////////////////   CAMERA  /////////////////////
 
 
-//if within the game bounds
-function withinBounds(x, y) {
-    var xBound = (x >= Math.floor(camera.x / story.size) - 1) && (x <= Math.floor(camera.x / story.size) + (canvas.width / story.size));
-    return xBound;
-}
+////if within the game bounds
+//function withinBounds(x, y, _area) {
+//    var xBound = (x >= Math.floor(camera.x / _area.size) - 1) && (x <= Math.floor(camera.x / _area.size) + (canvas.width / _area.size));
+//    return xBound;
+//}
 
 //have the camera follow the player
 function panCamera(_area) {
         //camera displacement
-    if ((player.x >= (canvas.width / 2)) && (player.x <= (_area.map[0].length * size) - (canvas.width / 2)))
+    if ((player.x >= (canvas.width / 2)) && (player.x <= (_area.map[0].length * _area.size) - (canvas.width / 2)))
         camera.x = player.x - (canvas.width / 2);
 
-    if ((player.y >= (canvas.height / 2) - size / 2) && (player.y <= (_area.map.length * size) - (canvas.height / 2)))
-        camera.y = player.y - (canvas.height / 2 - size / 2);
+    if ((player.y >= (canvas.height / 2) - _area.size / 2) && (player.y <= (_area.map.length * _area.size) - (canvas.height / 2)))
+        camera.y = player.y - (canvas.height / 2 - _area.size / 2);
 }
 
 //reset the camera's position on the player
@@ -800,12 +792,12 @@ function resetCamera(_area) {
     camera.x = 0;
     camera.y = 0;
 
-    if ((player.x > (_area.map[0].length * size) - (canvas.width / 2)))
-        camera.x = (_area.map[0].length * size) - canvas.width;
+    if ((player.x > (_area.map[0].length * _area.size) - (canvas.width / 2)))
+        camera.x = (_area.map[0].length * _area.size) - canvas.width;
 
 
-    if ((player.y > (_area.map.length * size) - (canvas.height / 2)))
-        camera.y = (_area.map.length * size) - canvas.height;
+    if ((player.y > (_area.map.length * _area.size) - (canvas.height / 2)))
+        camera.y = (_area.map.length * _area.size) - canvas.height;
 }
 
 
@@ -814,6 +806,7 @@ function resetCamera(_area) {
 
 //random walking
 function drunkardsWalk(_area, sprite, boundary = null) {
+    console.log('im drunk');
     var dice;
     var directions = ["north", "south", "west", "east"];
     if (!sprite.moving) {
@@ -831,17 +824,17 @@ function drunkardsWalk(_area, sprite, boundary = null) {
             if (directions.length == 0)
                 return;
 
-        } while (collide(_area, pseudoChar, boundary) || hitOther(pseudoChar, player))
+        } while (collide(_area, pseudoChar, boundary) || hitOther(pseudoChar, player, _area))
 
         //move in direction
         if (pseudoChar.dir === "north") {
-            goNorth(sprite);
+            goNorth(sprite, _area);
         } else if (pseudoChar.dir === "south") {
-            goSouth(sprite);
+            goSouth(sprite, _area);
         } else if (pseudoChar.dir === "west") {
-            goWest(sprite);
+            goWest(sprite, _area);
         } else if (pseudoChar.dir === "east") {
-            goEast(sprite);
+            goEast(sprite, _area);
         }
     }
 }
@@ -864,20 +857,20 @@ function smallStep(robot) {
         //changing y pos
         if (curX == nextStep[0]) {
             if (nextStep[1] < curY)
-                goNorth(robot);
+                goNorth(robot, _area);
             else if (nextStep[1] > curY)
-                goSouth(robot);
+                goSouth(robot, _area);
         }
         //changing x pos
         else if (curY == nextStep[1]) {
             if (nextStep[0] < curX)
-                goWest(robot);
+                goWest(robot, _area);
             else if (nextStep[0] > curX)
-                goEast(robot);
+                goEast(robot, _area);
         }
         //remove the node once reached
         robot.lastPos = robot.pathQueue.shift();
-        //robot.lastPos = [Math.floor(robot.x / size), Math.floor(robot.y / size)];
+        //robot.lastPos = [Math.floor(robot.x / _area.size), Math.floor(robot.y / _area.size)];
     }
 }
 
@@ -1367,7 +1360,7 @@ function anyKey() {
 }
 
 //movement arrow keys
-function moveKeys() {
+function moveKeys(_area) {
     if (!player.moving && !player.interact && !story.pause && !story.cutscene) {
         if (keyTick < 1) {
             if (keys[leftKey]) //left key
@@ -1380,13 +1373,13 @@ function moveKeys() {
                 player.dir = "south";
         } else {
             if (keys[leftKey]) //left key
-                goWest(player);
+                goWest(player, _area);
             else if (keys[rightKey]) //right key
-                goEast(player);
+                goEast(player, _area);
             else if (keys[upKey]) //up key
-                goNorth(player);
+                goNorth(player, _area);
             else if (keys[downKey]) //down key
-                goSouth(player);
+                goSouth(player, _area);
         }
     }
 }
@@ -1401,7 +1394,7 @@ function actionKeys(_area) {
     var dialogue = story.dialogue;
     if (keys[a_key] && !player.interact && !player.moving && normal_game_action()) {
         for (var i = 0; i < items.length; i++) {
-            if (canInteract(player, items[i]) && items[i].text) {
+            if (canInteract(player, items[i], _area) && items[i].text) {
 
                 story.trigger = "touch_" + items[i].name;
                 reInteract = false;
@@ -1421,7 +1414,7 @@ function actionKeys(_area) {
             }
         }
         for (var i = 0; i < npcs.length; i++) {
-            if (canTalk(player, npcs[i]) && npcs[i].text) {
+            if (canTalk(player, npcs[i], _area) && npcs[i].text) {
                 story.trigger = "talk_" + npcs[i].name;
 
                 //setup
@@ -1502,25 +1495,25 @@ function normal_game_action() {
 
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
-function makeHallArea() {
-    rows = 6;
-    cols = 9;
-    map = [
-        [1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1]
-    ]
-    player.x = 1 * story.size;
-    player.y = 3 * story.size;
-    story.scene = "hall";
-    for (var n = 0; n < npcs.length; n++) {
-        npcs[n].show = false;
-    }
-
-}
+//function makeHallArea() {
+//    rows = 6;
+//    cols = 9;
+//    map = [
+//        [1, 1, 1, 1, 1, 1, 1, 1, 1],
+//        [1, 1, 1, 1, 1, 1, 1, 1, 1],
+//        [1, 1, 1, 1, 1, 1, 1, 1, 1],
+//        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//        [0, 0, 0, 0, 0, 0, 0, 0, 0],
+//        [1, 1, 1, 1, 1, 1, 1, 1, 1]
+//    ]
+//    player.x = 1 * story.size;
+//    player.y = 3 * story.size;
+//    story.scene = "hall";
+//    for (var n = 0; n < npcs.length; n++) {
+//        npcs[n].show = false;
+//    }
+//
+//}
 
 var hackClock = 0;
 var timeLeft = 2160;
@@ -1565,6 +1558,8 @@ export function init(_area) {
     player.velX = 0;
     player.x = area.startingCoordinates.x;
     player.y = area.startingCoordinates.y;
+
+    return area;
 }
 
 // todo: figure out what this is supposed to do
@@ -1585,8 +1580,8 @@ function randomPosition(item, _area) {
         y = Math.floor(Math.random() * _area.rows);
     }
 
-    item.x = x * _area.storySize;
-    item.y = y * _area.storySize;
+    item.x = x * _area.size;
+    item.y = y * _area.size;
 }
 
 export function animate() {
@@ -1597,8 +1592,8 @@ export function animate() {
     play(area);
 
     //player movement
-    var pixX = Math.round(player.x / size);
-    var pixY = Math.round(player.y / size);
+    var pixX = Math.round(player.x / area.size);
+    var pixY = Math.round(player.y / area.size);
 
     if (!story.pause) {
         travel(player, area);
@@ -1638,7 +1633,7 @@ export function animate() {
         kt = 0;
         keyTick = 0;
     }
-    moveKeys();
+    moveKeys(area);
     actionKeys(area);
 
 

@@ -29,5 +29,6 @@ export class Hacker {
         this.interact = false;
         this.move = "drunk_walk";
         this.wt = 0;
+        this.show = true;
     }
 }
