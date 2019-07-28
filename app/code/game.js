@@ -22,65 +22,32 @@ let ctx = canvas.getContext('2d');
 let guiCanvas = setupCanvas('guiCanvas', 288, 54);
 let ctx2 = guiCanvas.getContext('2d');
 
+let camera = { x: 0, y: 0 };
+
 // background image
-let area;
-let areaImage;
-let backgroundImage;
-
-//////   gui   //////
-//dialog
-let dialogImage;
-
-//project bar progress
-var projectBarIMG = new Image();
-projectBarIMG.src = './sprites/projectbar.png';
-var projectBarReady = false;
-projectBarIMG.onload = function () {
-    projectBarReady = true;
-};
-
-//team skill bar
-var teamBarIMG = new Image();
-teamBarIMG.src = './sprites/teambar.png';
-var teamBarReady = false;
-teamBarIMG.onload = function () {
-    teamBarReady = true;
-};
-
-//energy bar
-var energyBarIMG = new Image();
-energyBarIMG.src = './sprites/energypic.png';
-var energyReady = false;
-energyBarIMG.onload = function () {
-    energyReady = true;
-};
-
-//filler bar
-var fillerBarIMG = new Image();
-fillerBarIMG.src = './sprites/fullbar.png';
-var fillerReady = false;
-fillerBarIMG.onload = function () {
-    fillerReady = true;
-};
+let area, areaImage, backgroundImage;
+// gui
+let dialogImage, projectBarImage, teamBarImage, energyBarImage, fillerBarImage;
 
 
-var collideTiles = [1];
-var tiles = new Image();
-//tiles.src = "map/tileset.png";
-var tilesReady = false;
-tiles.onload = function () {
-    tilesReady = true;
-};
-var tpr = 5; //tiles per row
+//items
 
-//camera
-var camera = {
-    x: 0,
-    y: 0
-};
+var projectImage = new Image();
+projectImage.src = "./sprites/project.png";
+var items = [
+    {
+        name: "project",
+        x: 256,
+        y: 288,
+        skin: projectImage,
+        ready: true,
+        show: true,
+        text: ["4d 49 4c 4b"],
+        text_index: 0,
+        area: null
+    }
+];
 
-//lists
-var items = [];
 export var npcs = [];
 
 
@@ -102,38 +69,40 @@ var start_key = 13; //[Enter]
 var actionKeySet = [a_key, b_key, select_key, start_key];
 var keys = [];
 
+function makePlayer() {
+    let playerImage = new Image();
+    playerImage.src = "./sprites/main.png";
 
-var playerIMG = new Image();
-playerIMG.src = "./sprites/main.png";
-var playerReady = false;
-playerIMG.onload = function () {
-    playerReady = true;
-};
+    return {
+        //sprite properties
+        name: PLAYER_NAME,
+        width: 16,
+        height: 16,
+        skin: playerImage,
+        ready: true,
 
-var player = {
-    //sprite properties
-    name: PLAYER_NAME,
-    width: 16,
-    height: 16,
-    skin: playerIMG,
-    ready: playerReady,
+        //movement
+        speed: 2,
+        initPos: 0,
+        moving: false,
+        velX: 0,
+        velY: 0,
+        show: true,
 
-    //movement
-    speed: 2,
-    initPos: 0,
-    moving: false,
-    velX: 0,
-    velY: 0,
-    show: true,
-
-    //other properties
-    interact: false,
-    other: null,
-    pathQueue: [],
-    lastPos: [],
-    following: false,
-
+        //other properties
+        interact: false,
+        other: null,
+        pathQueue: [],
+        lastPos: [],
+        following: false,
+    };
 }
+
+
+
+
+var player = makePlayer();
+var playerImage = player.skin;
 
 export var team = {
     members: [],
@@ -143,24 +112,7 @@ export var team = {
     teamSkill: [0, 0, 0, 0, 0],
 }
 
-var projectIMG = new Image();
-projectIMG.src = "./sprites/project.png";
-var projectReady = false;
-projectIMG.onload = function () {
-    projectReady = true;
-};
-var project = {
-    name: "project",
-    x: 256,
-    y: 288,
-    skin: projectIMG,
-    ready: projectReady,
-    show: true,
-    text: ["4d 49 4c 4b"],
-    text_index: 0,
-    area: null
-}
-items.push(project);
+
 
 var coffeeIMG = new Image();
 coffeeIMG.src = './sprites/coffee.png';
@@ -196,7 +148,7 @@ var redbull = {
     text: ["RED BULL!"],
     text_index: 0,
     area: null
-}
+};
 
 var wifiIMG = new Image();
 wifiIMG.src = './sprites/wifi.png';
@@ -240,19 +192,6 @@ var invisibleReady = false;
 invisibleIMG.onload = function () {
     invisibleReady = true;
 };
-
-//function invisItem(name, x, y, text) {
-//    this.name = name;
-//    this.x = x;
-//    this.y = y;
-//    this.text = text;
-//    this.img = invisibleIMG;
-//    this.ready = invisibleReady;
-//    this.show = true;
-//    this.text_index = 0;
-//    this.area = null;
-//}
-
 
 var spectators = [];
 
@@ -532,17 +471,16 @@ function hitWall(sprite, _area) {
         (sprite.dir === "east" && ry + 1 >= _area.rows))
         return;
 
-    //decide if adjacent to sprite
-    if (sprite.dir == "north" && inArr(collideTiles, _area.map[ry - 1][rx]))
+
+    if ((sprite.dir == "north" && _area.map[ry - 1][rx] === 1) ||
+        (sprite.dir == "south" && _area.map[ry + 1][rx] === 1) ||
+        (sprite.dir == "east" && _area.map[ry][rx + 1] === 1) ||
+        (sprite.dir == "west" && _area.map[ry][rx - 1] === 1)) {
+
         return true;
-    else if (sprite.dir == "south" && inArr(collideTiles, _area.map[ry + 1][rx]))
-        return true;
-    else if (sprite.dir == "east" && inArr(collideTiles, _area.map[ry][rx + 1]))
-        return true;
-    else if (sprite.dir == "west" && inArr(collideTiles, _area.map[ry][rx - 1]))
-        return true;
-    else
-        return false;
+    }
+
+    return false;
 }
 
 //if hit another sprite
@@ -746,13 +684,6 @@ function goodSpot(x, y, _map, _rows, _cols, _npcs, _items) {
 
 ///////////////////   CAMERA  /////////////////////
 
-
-////if within the game bounds
-//function withinBounds(x, y, _area) {
-//    var xBound = (x >= Math.floor(camera.x / _area.size) - 1) && (x <= Math.floor(camera.x / _area.size) + (canvas.width / _area.size));
-//    return xBound;
-//}
-
 //have the camera follow the player
 function panCamera(_area) {
         //camera displacement
@@ -857,12 +788,12 @@ export function allImagesAreReady(verbose=false) {
 
     let namedImages = [
 //        [tiles, 'tiles'],
-        [playerIMG, 'playerIMG'],
+        [playerImage, 'playerImage'],
         [dialogImage, 'dialogImage'],
-        [projectBarIMG, 'projectBarIMG'],
-        [teamBarIMG, 'teamBarIMG'],
-        [energyBarIMG, 'energyBarIMG'],
-        [fillerBarIMG, 'fillerBarIMG'],
+        [projectBarImage, 'projectBarImage'],
+        [teamBarImage, 'teamBarImage'],
+        [energyBarImage, 'energyBarImage'],
+        [fillerBarImage, 'fillerBarImage'],
         [areaImage, 'areaImage'],
 //        [hallwayPNG, 'hallwayPNG'],
     ];
@@ -894,143 +825,11 @@ export function readyAllTheThings() {
     });
 }
 
-////check for render ok
-//function checkRender() {
-//
-//    //tiles
-//    if (!tilesReady) {
-//        tiles.onload = function () {
-//            tilesReady = true;
-//        };
-//    }
-//
-//    if (!hallReady) {
-//        hallwayPNG.onload = function () {
-//            hallReady = true;
-//        };
-//    }
-//
-//
-//    //player
-//    if (!player.ready) {
-//        player.skin.onload = function () {
-//            player.ready = true;
-//        }
-//        if (player.skin.width !== 0) {
-//            player.ready = true;
-//        }
-//    }
-//
-//    //npcs
-//    for (var a = 0; a < npcs.length; a++) {
-//        if (!npcs[a].ready) {
-//            if (npcs[a].skin.width !== 0) {
-//                npcs[a].ready = true;
-//            }
-//        }
-//    }
-//
-//    //item
-//    for (var i = 0; i < items.length; i++) {
-//        if (!items[i].ready) {
-//            if (items[i].skin.width !== 0) {
-//                items[i].ready = true;
-//            }
-//        }
-//    }
-//
-//
-//    //dialogue
-//    if (!dialogReady) {
-//        dialogImage.onload = function () {
-//            dialogReady = true;
-//        };
-//    }
-//
-//    //gui bars
-//    if (!energyReady) {
-//        projectBarIMG.onload = function () {
-//            projectBarReady = true;
-//        };
-//    }
-//    if (!teamBarReady) {
-//        teamBarIMG.onload = function () {
-//            teamBarReady = true;
-//        };
-//    }
-//    if (!energyBarIMG) {
-//        energyBarIMG.onload = function () {
-//            energyReady = true;
-//        };
-//    }
-//    if (!fillerReady) {
-//        fillerBarIMG.onload = function () {
-//            fillerReady = true;
-//        };
-//    }
-//}
-
 
 function drawchar(sprite) {
     ctx.drawImage(sprite.skin, sprite.x, sprite.y);
 }
 
-////draw a character sprite
-//function drawsprite(sprite) {
-//    updatesprite(sprite);
-//    rendersprite(sprite);
-//}
-//
-////update animation
-//function updatesprite(sprite) {
-//    //update the frames
-//    if (sprite.ct == (sprite.fps - 1))
-//        sprite.curFrame = (sprite.curFrame + 1) % sprite.seqlength;
-//
-//    sprite.ct = (sprite.ct + 1) % sprite.fps;
-//}
-//draw the sprite
-//function rendersprite(sprite) {
-//    //set the animation sequence
-//    var sequence;
-//    if (sprite.dir == "north") {
-//        if (sprite.action == "idle")
-//            sequence = sprite.idleNorth;
-//        else
-//            sequence = sprite.moveNorth;
-//    } else if (sprite.dir == "south") {
-//        if (sprite.action == "idle")
-//            sequence = sprite.idleSouth;
-//        else
-//            sequence = sprite.moveSouth;
-//    } else if (sprite.dir == "west") {
-//        if (sprite.action == "idle")
-//            sequence = sprite.idleWest;
-//        else
-//            sequence = sprite.moveWest;
-//    } else if (sprite.dir == "east") {
-//        if (sprite.action == "idle")
-//            sequence = sprite.idleEast;
-//        else
-//            sequence = sprite.moveEast;
-//    }
-//
-//    //get the row and col of the current frame
-//    var row = Math.floor(sequence[sprite.curFrame] / sprite.fpr);
-//    var col = Math.floor(sequence[sprite.curFrame] % sprite.fpr);
-//
-//    var curheight = sprite.height;
-//    var offY = sprite.offsetY;
-//    var sprIMG = sprite.img;
-//
-//    if (sprite.show && sprite.ready) {
-//        ctx.drawImage(sprIMG,
-//            col * sprite.width, row * curheight,
-//            sprite.width, curheight,
-//            sprite.x - sprite.offsetX, sprite.y - offY,
-//            sprite.width, curheight);
-//    }
-//}
 
 function renderItem(item) {
     if (item.show && item.ready)
@@ -1040,13 +839,13 @@ function renderItem(item) {
 function drawBars() {
 
     //background gui
-    ctx2.drawImage(projectBarIMG, 2, 4);
-    ctx2.drawImage(energyBarIMG, 96, 4);
-    ctx2.drawImage(teamBarIMG, 190, 4);
+    ctx2.drawImage(projectBarImage, 2, 4);
+    ctx2.drawImage(energyBarImage, 96, 4);
+    ctx2.drawImage(teamBarImage, 190, 4);
 
     //health bar gui
-    ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 8, 36, (team.projectProg / 100) * 88, 12);
-    ctx2.drawImage(fillerBarIMG, 0, 0, 88, 12, 102, 36, (team.energy / 100) * 88, 12);
+    ctx2.drawImage(fillerBarImage, 0, 0, 88, 12, 8, 36, (team.projectProg / 100) * 88, 12);
+    ctx2.drawImage(fillerBarImage, 0, 0, 88, 12, 102, 36, (team.energy / 100) * 88, 12);
 
     //team stats gui
     ctx2.fillStyle = "#ff0000";
@@ -1058,6 +857,7 @@ function drawBars() {
 }
 
 //render everything
+// guaranteed to run after all images are loaded
 async function render(_area) {
     ctx.save();
 
@@ -1537,12 +1337,26 @@ export function init(_area) {
     dialogImage = new Image();
     dialogImage.src = './sprites/dialog_box.png';
 
+    projectBarImage = new Image();
+    projectBarImage.src = './sprites/projectbar.png';
+
+    teamBarImage = new Image();
+    teamBarImage.src = './sprites/teambar.png';
+
+    energyBarImage = new Image();
+    energyBarImage.src = './sprites/energypic.png';
+
+    fillerBarImage = new Image();
+    fillerBarImage.src = './sprites/fullbar.png';
+
     areaImage = new Image();
     if (area.scene === 'main') {
         areaImage.src = "./sprites/hackarea.png";
     } else if (area.scene === 'hall') {
         areaImage.src = "./sprites/Hallway.png";
     }
+
+
 
     player.moving = false;
     player.action = "idle";
@@ -1636,15 +1450,6 @@ export function animate() {
         window.alert("CONGRATS! YOU FINISHED YOUR PROJECT!");
         stopGame();
     }
-
-
-    ///////////////    DEBUG   //////////////////
-    /*
-    var settings = "X: " + Math.round(player.x) + " | Y: " + Math.round(player.y);
-    settings += " --- Pix X: " + pixX + " | Pix Y: " + pixY;
-    settings += " --- " + story.trigger;
-    document.getElementById('debug').innerHTML = settings;
-    */
 }
 
 var stopped = false;
