@@ -1,9 +1,9 @@
 export const npcData = [
-    {"name": "npc1", "x": 10, "y": 3, "dialogueLines": ["Hack the Planet!"], "skin": "npc1"},
-    {"name": "npc2", "x": 5, "y": 1, "dialogueLines": ["Hack the Planet!"], "skin": "npc2"},
-    {"name": "npc3", "x": 12, "y": 7, "dialogueLines": ["Hack the Planet!"], "skin": "npc3"},
-    {"name": "npc4", "x": 3, "y": 10, "dialogueLines": ["Hack the Planet!"], "skin": "npc4"},
-    {"name": "npc5", "x": 11, "y": 11, "dialogueLines": ["Hack the Planet!"], "skin": "npc5"},
+    {"name": "npc1", "x": 10, "y": 3, "dialogueLines": ["Hack the Planet!"]},
+    {"name": "npc2", "x": 5, "y": 1, "dialogueLines": ["Hack the Planet!"]},
+    {"name": "npc3", "x": 12, "y": 7, "dialogueLines": ["Hack the Planet!"]},
+    {"name": "npc4", "x": 3, "y": 10, "dialogueLines": ["Hack the Planet!"]},
+    {"name": "npc5", "x": 11, "y": 11, "dialogueLines": ["Hack the Planet!"]},
 ];
 
 export const hackerData = [
@@ -16,11 +16,19 @@ export const hackerData = [
 ];
 
 export const organizerData = [
-    {"name": "organizer", "x": 8, "y": 2, "dialogueLines": ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"], "skin": "organizer"},
+    {"name": "organizer", "x": 8, "y": 2, "dialogueLines": ["Hey there!", "Be sure to collect some | free swag from our | lovely sponsors!"]},
 ];
 
 export const sponsorData = [
-    {"name": "sponsor", "x": 2, "y": 8, "dialogueLines": ["Happy hacking!"], "skin": "sponsor"},
+    {"name": "sponsor", "x": 2, "y": 8, "dialogueLines": ["Happy hacking!"]},
+];
+
+export const itemData = [
+    {"name": "project", "x": 256, "y": 288, "dialogueLines": ["4d 49 4c 4b"]},
+    {"name": "floppy", "x": 384, "y": 32, "dialogueLines": ["UPGRADE!"]},
+    {"name": "wifi", "x": 512, "y": 32, "dialogueLines": ["WIFI!"]},
+    {"name": "redbull", "x": 512, "y": 192, "dialogueLines": ["RED BULL!"]},
+    {"name": "coffee", "x": 128, "y": 32, "dialogueLines": ["COFFEE!"]},
 ];
 
 export const areaData = [
@@ -38,7 +46,12 @@ export const areaData = [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        ], "skinName": "hackarea", "startingCoordinates": { "x": 0, "y": 7 * 32 }},
+        ], "skinName": "hackarea", "startingCoordinates": { "x": 0, "y": 7 * 32 }, "positionSets":
+            {
+                "workstations": [],
+                "demo": [[8, 7], [8, 8], [8, 9]],
+            },
+        },
     {"scene": "hall", "size": 32, "map": [
             [1, 1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1],

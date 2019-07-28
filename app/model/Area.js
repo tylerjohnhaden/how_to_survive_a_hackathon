@@ -8,6 +8,8 @@ export class Area {
         // load the skin, will exist before as another image
         this.skin = new Image();
         this.skin.src = "./sprites/" + areaDatum.skinName + ".png";
+
+        this.positionSets = areaDatum.positionSets;
     }
 
     get rows() {

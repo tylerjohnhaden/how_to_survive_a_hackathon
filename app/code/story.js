@@ -100,12 +100,12 @@ function newChoice(options) {
     countChoice();
 }
 
-//reset the choice options
-function endChoice() {
-    story.choice_box.show = false;
-    story.choice_box.index = 0;
-    story.choice_box.lines = [];
-}
+////reset the choice options
+//function endChoice() {
+//    story.choice_box.show = false;
+//    story.choice_box.index = 0;
+//    story.choice_box.lines = [];
+//}
 
 export function play(_area) {
     //make local variables

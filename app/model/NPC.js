@@ -7,7 +7,7 @@ export class NPC {
 
         // load the skin, will exist before as another image
         this.skin = new Image();
-        this.skin.src = "./sprites/" + npcDatum.skin + ".png";
+        this.skin.src = "./sprites/" + this.name + ".png";
 
         // location
         this.x = npcDatum.x * scale;

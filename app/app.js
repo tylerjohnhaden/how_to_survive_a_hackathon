@@ -2,26 +2,47 @@
 
 import { _ } from './lib/underscore.js'
 
-import { hackerData, npcData, organizerData, sponsorData, areaData } from './data.js';
+import { hackerData, npcData, organizerData, sponsorData, areaData, itemData } from './data.js';
 
 import { Hacker } from './model/Hacker.js';
 import { NPC } from './model/NPC.js';
 import { Area } from './model/Area.js';
+import { Item } from './model/Item.js';
 
 import { init, team, PLAYER_NAME, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
 
 async function main(demo) {
-    let area = init(new Area(areaData.find(areaDatum => areaDatum.scene == 'main')));
+    let area = init(
+        new Area(areaData.find(areaDatum => areaDatum.scene == 'main')),
+        itemData.map(itemDatum => new Item(itemDatum))
+    );
 
-    let processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, area.size));
-    npcs.push.apply(npcs, processedHackers);
     npcs.push.apply(npcs, npcData.map(npcDatum => new NPC(npcDatum, area.size)));
     npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, area.size)));
     npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, area.size)));
 
+    let demoPositions = area.positionSets["demo"];
+
+    let processedHackers = hackerData.map(hackerDatum => new Hacker(hackerDatum, area.size));
+    npcs.push.apply(npcs, processedHackers);
+
     if (demo) {
         updateHackers(processedHackers, area.size);
-        updateTeam(team, _.sample(processedHackers, 3));
+
+        team.members = _.sample(processedHackers, 3);
+
+        for (var i = 0; i < team.members.length; i++) {
+            for (var s = 0; s < 5; s++) {
+                team.teamSkill[s] += team.members[i].skillSet[s];
+            }
+        }
+
+        for (var m = 0; m < demoPositions.length; m++) {
+            team.members[m].x = 32 * demoPositions[m % demoPositions.length][1];
+            team.members[m].y = 32 * demoPositions[m % demoPositions.length][0];
+            team.members[m].move = "code";
+            team.members[m].text.push("Let's build a chatbot, | " + PLAYER_NAME + "!");
+        }
     }
 
     console.log('loaded in hackers and npcs', npcs);
@@ -42,23 +63,23 @@ async function main(demo) {
     animate();
 }
 
-function updateTeam(_team, _newTeamMembers) {
-    _team.members = _newTeamMembers
-
-    for (var i = 0; i < _team.members.length; i++) {
-        for (var s = 0; s < 5; s++) {
-            _team.teamSkill[s] += team.members[i].skillSet[s];
-        }
-    }
-
-    for (var m = 0; m < team.members.length; m++) {
-        _team.members[m].show = true;
-        _team.members[m].x = 224 + 32 * m;
-        _team.members[m].y = 256;
-        _team.members[m].move = "code";
-        _team.members[m].text.push("Let's build a chatbot, | " + PLAYER_NAME + "!");
-    }
-}
+//function updateTeam(_team, _newTeamMembers) {
+//    _team.members = _newTeamMembers
+//
+//    for (var i = 0; i < _team.members.length; i++) {
+//        for (var s = 0; s < 5; s++) {
+//            _team.teamSkill[s] += _team.members[i].skillSet[s];
+//        }
+//    }
+//
+//    for (var m = 0; m < team.members.length; m++) {
+//        _team.members[m].show = true;
+//        _team.members[m].x = 224 + 32 * m;
+//        _team.members[m].y = 256;
+//        _team.members[m].move = "code";
+//        _team.members[m].text.push("Let's build a chatbot, | " + PLAYER_NAME + "!");
+//    }
+//}
 
 function updateHackers(_hackers, _storySize) {
     function _s(x) {

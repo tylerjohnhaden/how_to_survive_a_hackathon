@@ -4,6 +4,15 @@ import { story, triggerWord, play } from './story.js';
 
 export const PLAYER_NAME = 'HAX';
 
+export var team = {
+    members: [],
+    projectProg: 0,
+    energy: 50,
+    challenges: [],
+    teamSkill: [0, 0, 0, 0, 0],
+}
+
+
 // set up the canvas
 function setupCanvas(id, w, h) {
     let canvas = document.createElement('canvas');
@@ -30,25 +39,8 @@ let area, areaImage, backgroundImage;
 let dialogImage, projectBarImage, teamBarImage, energyBarImage, fillerBarImage;
 
 
-//items
-
-var projectImage = new Image();
-projectImage.src = "./sprites/project.png";
-var items = [
-    {
-        name: "project",
-        x: 256,
-        y: 288,
-        skin: projectImage,
-        ready: true,
-        show: true,
-        text: ["4d 49 4c 4b"],
-        text_index: 0,
-        area: null
-    }
-];
-
-export var npcs = [];
+export let npcs = [];
+let items = [];
 
 
 // directionals
@@ -98,111 +90,9 @@ function makePlayer() {
     };
 }
 
-
-
-
 var player = makePlayer();
 var playerImage = player.skin;
 
-export var team = {
-    members: [],
-    projectProg: 0,
-    energy: 50,
-    challenges: [],
-    teamSkill: [0, 0, 0, 0, 0],
-}
-
-
-
-var coffeeIMG = new Image();
-coffeeIMG.src = './sprites/coffee.png';
-var coffeeReady = false;
-coffeeIMG.onload = function () {
-    coffeeReady = true;
-};
-var coffee = {
-    name: "coffee",
-    x: 128,
-    y: 32,
-    skin: coffeeIMG,
-    ready: coffeeReady,
-    show: true,
-    text: ["COFFEE!"],
-    text_index: 0,
-    area: null
-}
-
-var redbullIMG = new Image();
-redbullIMG.src = './sprites/redbull.png';
-var redbullReady = false;
-redbullIMG.onload = function () {
-    redbullReady = true;
-};
-var redbull = {
-    name: "redbull",
-    x: 512,
-    y: 192,
-    skin: redbullIMG,
-    ready: redbullReady,
-    show: true,
-    text: ["RED BULL!"],
-    text_index: 0,
-    area: null
-};
-
-var wifiIMG = new Image();
-wifiIMG.src = './sprites/wifi.png';
-var wifiReady = false;
-wifiIMG.onload = function () {
-    wifiReady = true;
-};
-var wifi = {
-    name: "wifi",
-    x: 512,
-    y: 32,
-    skin: wifiIMG,
-    ready: wifiReady,
-    show: true,
-    text: ["WIFI!"],
-    text_index: 0,
-    area: null
-}
-
-var floppyIMG = new Image();
-floppyIMG.src = './sprites/floppy.png';
-var floppyReady = false;
-floppyIMG.onload = function () {
-    floppyReady = true;
-};
-var floppy = {
-    name: "floppy",
-    x: 384,
-    y: 32,
-    skin: floppyIMG,
-    ready: floppyReady,
-    show: true,
-    text: ["UPGRADE!"],
-    text_index: 0,
-    area: null
-}
-
-var invisibleIMG = new Image();
-invisibleIMG.src = './sprites/invisible.png';
-var invisibleReady = false;
-invisibleIMG.onload = function () {
-    invisibleReady = true;
-};
-
-var spectators = [];
-
-var energies = [];
-energies.push(coffee);
-energies.push(redbull);
-var questies = [];
-questies.push(wifi);
-questies.push(floppy);
-items.push.apply(items, energies);
-items.push.apply(items, questies);
 
 /////////////////     GENERIC FUNCTIONS   ///////////
 
@@ -863,7 +753,7 @@ async function render(_area) {
 
     ctx.translate(-camera.x, -camera.y);
 
-    //clear eveoything
+    //clear everything
     ctx.clearRect(camera.x, camera.y, canvas.width, canvas.height);
 
 
@@ -1294,13 +1184,11 @@ function normal_game_action() {
 //
 //}
 
-var hackClock = 0;
-var timeLeft = 2160;
-var energyClock = 0;
-var projectClock = 0;
+let intervals = [];
+
 var projInc = 0;
 
-export function init(_area) {
+export function init(_area, _items) {
     player.show = false;
     var activations = [null, null, randomPosition];
     story.storyFunct = activations;
@@ -1308,19 +1196,17 @@ export function init(_area) {
     var playerName = prompt("Enter your name");
 
     //set the timers
-    energyClock = setInterval(function () {
+    intervals.push(setInterval(function () {
         team.energy -= (team.members.length);
-    }, 5000);
-    hackClock = setInterval(function () {
-        timeLeft -= 1;
-    }, 1000);
+    }, 5000));
 
     projInc = Math.floor(team.teamSkill[Math.floor(Math.random() * 5)] / 10) + (Math.floor(team.energy / 10) - 3);
-    projectClock = setInterval(function () {
+
+    intervals.push(setInterval(function () {
         team.projectProg += (projInc > 0 ? projInc : 0);
         projInc = Math.floor(team.teamSkill[Math.floor(Math.random() * 5)] / 10) + (Math.floor(team.energy / 10) - 3)
         console.log("project increase by: " + projInc);
-    }, 7000)
+    }, 7000));
 
     story.player = player;
     story.team = team;
@@ -1356,14 +1242,16 @@ export function init(_area) {
         areaImage.src = "./sprites/Hallway.png";
     }
 
-
-
     player.moving = false;
     player.action = "idle";
     player.velY = 0;
     player.velX = 0;
     player.x = area.startingCoordinates.x;
     player.y = area.startingCoordinates.y;
+
+    // items
+
+    items = _items;
 
     return area;
 }
@@ -1455,10 +1343,12 @@ export function animate() {
 var stopped = false;
 
 function stopGame() {
-    clearInterval(energyClock);
-    clearInterval(projectClock);
     story.pause = true;
-    clearInterval(hackClock);
+
+    intervals.forEach(interval => {
+        clearInterval(interval);
+    });
+
     stopped = true;
 }
 
