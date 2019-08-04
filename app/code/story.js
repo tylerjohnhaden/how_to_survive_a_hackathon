@@ -15,7 +15,6 @@ export let story = {
     taskIndex: 0,
     trigger: "none",
     cutscene: false,
-    scene: "hall",
 
     //dialogue
     dialogue: {
@@ -33,20 +32,11 @@ export let story = {
         show: false
     },
 
-    //overlay screen
-    overlay: {
-        show: false
-    },
-
     pseudoOther: {
         textIndex: 0,
         show: true,
         interact: true,
-    },
-
-    playerCt: 0
-
-
+    }
 }
 
 
