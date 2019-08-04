@@ -148,6 +148,7 @@ function travel(sprite, _area) {
     if (sprite.action === "travel") { //continue if allowed to move
         var curspeed = sprite.speed;
 
+
         //travel north
         if (sprite.dir == "north") {
             if (Math.floor(sprite.y) > (sprite.initPos - _area.size) && !collide(_area, sprite)) {
@@ -193,21 +194,53 @@ function travel(sprite, _area) {
     }
 }
 
-//velocity control
+////velocity control
+//function _velControl(cur, value, max) {
+//
+//    function _util(_x) {
+//            if (_x === 0) {
+//                return 1;
+//            }
+//
+//            let curPlusVal = cur + _x;
+//
+//            //increment or decrement
+//            if (_x > 0) {
+//                return
+//                if (curPlusVal > max)
+//                    return _util(Math.floor(_x / 2));
+//                else
+//                    return _x;
+//            } else if (_x < 0) {
+//                if (curPlusVal < max)
+//                    return _util(Math.floor(_x / 2));
+//                else
+//                    return _x;
+//            }
+//    }
+//
+//    return _util(value);
+//}
+
+
 function velControl(cur, value, max) {
+    if (value === 0) {
+        return 1;
+    }
+
+    let curPlusVal = cur + value;
+
     //increment or decrement
     if (value > 0) {
-        if ((cur + value) > max)
+        if (curPlusVal > max)
             return velControl(cur, Math.floor(value / 2), max);
         else
             return value;
     } else if (value < 0) {
-        if ((cur + value) < max)
+        if (curPlusVal < max)
             return velControl(cur, Math.floor(value / 2), max);
         else
             return value;
-    } else {
-        return 1;
     }
 }
 
@@ -413,7 +446,7 @@ function hitNPC(sprite, _area) {
 function hitBoundary(_area, sprite, boundary) {
     //boundary in the form [x,y,w,h]
     if (boundary == null) {
-        console.error('Boundaries can\'t be hit if they don\'t exist');
+//        console.error('Boundaries can\'t be hit if they don\'t exist');
         return false;
     }
 
@@ -547,7 +580,7 @@ function screenEdge(sprite, _area) {
 //grouped collision checker
 function collide(_area, sprite, boundary = null) {
     //return false;
-    console.log('collide');
+    // console.log('collide');
     return hitNPC(sprite, _area) || hitWall(sprite, _area) || hitItem(sprite, _area) || hitBoundary(_area, sprite, boundary) || screenEdge(sprite, _area);
 }
 
@@ -996,6 +1029,7 @@ document.body.addEventListener("keydown", function (e) {
 
 //determine if valud key to press
 document.body.addEventListener("keydown", function (e) {
+    console.log(e.keyCode, moveKeySet, actionKeySet);
     if (inArr(moveKeySet, e.keyCode)) {
         keys[e.keyCode] = true;
     } else if (inArr(actionKeySet, e.keyCode)) {
@@ -1005,6 +1039,8 @@ document.body.addEventListener("keydown", function (e) {
 
 //check for key released
 document.body.addEventListener("keyup", function (e) {
+    console.log(e.keyCode, moveKeySet, actionKeySet, "up");
+
     if (inArr(moveKeySet, e.keyCode)) {
         keys[e.keyCode] = false;
     } else if (inArr(actionKeySet, e.keyCode)) {
@@ -1190,8 +1226,7 @@ var projInc = 0;
 
 export function init(_area, _items) {
     player.show = false;
-    var activations = [null, null, randomPosition];
-    story.storyFunct = activations;
+    story.setRandomPosition = randomPosition;
 
     var playerName = prompt("Enter your name");
 

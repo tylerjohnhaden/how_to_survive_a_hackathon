@@ -12,14 +12,21 @@ import { Item } from './model/Item.js';
 import { init, team, PLAYER_NAME, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
 
 async function main(demo) {
+
+    // Initialize game area, and set items
     let area = init(
         new Area(areaData.find(areaDatum => areaDatum.scene == 'main')),
         itemData.map(itemDatum => new Item(itemDatum))
     );
 
-    npcs.push.apply(npcs, npcData.map(npcDatum => new NPC(npcDatum, area.size)));
-    npcs.push.apply(npcs, organizerData.map(organizerDatum => new NPC(organizerDatum, area.size)));
-    npcs.push.apply(npcs, sponsorData.map(sponsorDatum => new NPC(sponsorDatum, area.size)));
+    let things = [].concat(
+        npcData,
+        organizerData,
+        sponsorData
+    );
+
+    // set npcs using static data
+    npcs.push.apply(npcs, things.map(npcDatum => new NPC(npcDatum, area.size)));
 
     let demoPositions = area.positionSets["demo"];
 
@@ -47,8 +54,6 @@ async function main(demo) {
 
     console.log('loaded in hackers and npcs', npcs);
 
-
-
     // block until ready
     while(!allImagesAreReady()) {
         // sleep
@@ -62,24 +67,6 @@ async function main(demo) {
     // animate frame method
     animate();
 }
-
-//function updateTeam(_team, _newTeamMembers) {
-//    _team.members = _newTeamMembers
-//
-//    for (var i = 0; i < _team.members.length; i++) {
-//        for (var s = 0; s < 5; s++) {
-//            _team.teamSkill[s] += _team.members[i].skillSet[s];
-//        }
-//    }
-//
-//    for (var m = 0; m < team.members.length; m++) {
-//        _team.members[m].show = true;
-//        _team.members[m].x = 224 + 32 * m;
-//        _team.members[m].y = 256;
-//        _team.members[m].move = "code";
-//        _team.members[m].text.push("Let's build a chatbot, | " + PLAYER_NAME + "!");
-//    }
-//}
 
 function updateHackers(_hackers, _storySize) {
     function _s(x) {
