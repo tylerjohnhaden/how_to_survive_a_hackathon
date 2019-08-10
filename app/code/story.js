@@ -1,41 +1,83 @@
-export let story = {
-    //character stats
-    player: null,
-    team: null,
+class SStory {
+    constructor() {
+        this.player = null;
+        this.team = null;
 
-    setRandomPosition: function() {},
+        this.size = 32;
 
-    //level data
-    size: 32,
-    pause: false,
+        this.pause = false;
+        this.quest = "None";
+        this.trigger = "none";
+        this.taskIndex = 0;
 
-    //mission
-    //quest : "Introduction",
-    quest: "None",
-    taskIndex: 0,
-    trigger: "none",
-    cutscene: false,
+        this.dialogue = {
+            text: "",
+            index: 0,
+            show: false,
+            threshold: 0
+        };
 
-    //dialogue
-    dialogue: {
-        text: "",
-        index: 0,
-        show: false,
-        threshold: 0
-    },
+        this.choice_box = {
+            options: [],
+            index: 0,
+            lines: [],
+            show: false
+        };
 
-    //choice
-    choice_box: {
-        options: [],
-        index: 0,
-        lines: [],
-        show: false
-    },
+        this.pseudoOther =
+            textIndex: 0,
+            show: true,
+            interact: true,
+        };
+    }
 
-    pseudoOther: {
-        textIndex: 0,
-        show: true,
-        interact: true,
+    setRandomPosition() {
+
+    }
+}
+
+if (false) {
+    export let sstory = new SStory();
+} else {
+    export let story = {
+        //character stats
+        player: null,
+        team: null,
+
+        setRandomPosition: function() {},
+
+        //level data
+        size: 32,
+        pause: false,
+
+        //mission
+        //quest : "Introduction",
+        quest: "None",
+        taskIndex: 0,
+        trigger: "none",
+        cutscene: false,
+
+        //dialogue
+        dialogue: {
+            text: "",
+            index: 0,
+            show: false,
+            threshold: 0
+        },
+
+        //choice
+        choice_box: {
+            options: [],
+            index: 0,
+            lines: [],
+            show: false
+        },
+
+        pseudoOther: {
+            textIndex: 0,
+            show: true,
+            interact: true,
+        }
     }
 }
 
