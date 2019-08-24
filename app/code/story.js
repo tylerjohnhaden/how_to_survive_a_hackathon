@@ -69,41 +69,38 @@ class Story {
         return false;
     }
 
-    // newDialog was present in the original source, but did not have any
-    //   references. I have ported over the logic, but cannot speak to it's
-    //   functionality or context.
+    // newDialog and endChoice were present in the original source, but did
+    // not have any references. I have ported over the logic, but cannot speak
+    // to it's functionality or context.
     //
     // newDialog(dialogueText) {
     //     this.dialogue.text = dialogueText;
     //     this.dialogue.show = true;
     // }
+    //
+    // // reset the choice options
+    // function endChoice() {
+    //     this.choice_box.show = false;
+    //     this.choice_box.index = 0;
+    //     this.choice_box.lines = [];
+    // }
+
+    // make new choice boxes
+    newChoice(options) {
+        this.choice_box.show = true;
+        this.choice_box.options = options;
+
+        //count the lines from each choice given
+        let lines = [];
+        for (let c = 0; c < this.choice_box.options.length; c++) {
+            lines.push(this.choice_box.options[c].split(" | ").length);
+        }
+
+        this.choice_box.lines = lines;
+    }
 }
 
 export let story = new Story();
-
-//count the lines from each choice given
-function countChoice() {
-    var choice = story.choice_box;
-    var lines = [];
-    for (var c = 0; c < choice.options.length; c++) {
-        lines.push(choice.options[c].split(" | ").length);
-    }
-    choice.lines = lines;
-}
-
-//make new choice boxes
-function newChoice(options) {
-    story.choice_box.show = true;
-    story.choice_box.options = options;
-    countChoice();
-}
-
-////reset the choice options
-//function endChoice() {
-//    story.choice_box.show = false;
-//    story.choice_box.index = 0;
-//    story.choice_box.lines = [];
-//}
 
 export function play(_area) {
     //make local variables
