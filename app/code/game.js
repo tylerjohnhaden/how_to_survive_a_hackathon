@@ -1,6 +1,6 @@
 // Game code
 
-import { story, triggerWord, play } from './story.js';
+import { story, play } from './story.js';
 
 export const PLAYER_NAME = 'HAX';
 
@@ -1105,7 +1105,7 @@ function actionKeys(_area) {
                 player.other = items[i];
                 player.interact = true;
 
-                if (!story.cutscene && !triggerWord(story.trigger)) {
+                if (!story.cutscene && !story.triggerWord()) {
                     dialogue.text = items[i].text;
                     dialogue.index = 0;
                     typewrite();
@@ -1131,7 +1131,7 @@ function actionKeys(_area) {
                 npcs[i].wt = 0;
 
                 //normal interaction
-                if (!story.cutscene && !triggerWord(story.trigger)) {
+                if (!story.cutscene && !story.triggerWord()) {
                     dialogue.text = npcs[i].text;
                     dialogue.index = npcs[i].text_index;
                     typewrite();

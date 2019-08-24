@@ -47,24 +47,30 @@ class Story {
         this.dialogue.index = 0;
         this.trigger = "none";
     }
+
+    triggerWord() {
+        if (this.quest === "Register") {
+            return true;
+        }
+
+        if (this.quest === "Demo") {
+            // todo: make this function less verbose
+            if (this.trigger.match(/touch*/g)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        if (this.quest === "Small Talk") {
+            return true;
+        }
+
+        return false;
+    }
 }
 
 export let story = new Story();
-
-export function triggerWord(word) {
-    if (story.quest === "Register")
-        return true;
-    else if (story.quest === "Demo") {
-        if (word.match(/touch*/g))
-            return true;
-        else
-            return false;
-    } else if (story.quest === "Small Talk")
-        return true;
-    else
-        return false;
-
-}
 
 //function newDialog(_story, dialogue) {
 //    _story.dialogue.text = dialogue;
