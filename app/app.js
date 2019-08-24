@@ -112,5 +112,5 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// main loop
-main(true);
+// main loop, boolean means demo or no demo
+main(false);

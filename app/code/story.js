@@ -1,4 +1,4 @@
-class SStory {
+class Story {
     constructor() {
         this.player = null;
         this.team = null;
@@ -24,7 +24,7 @@ class SStory {
             show: false
         };
 
-        this.pseudoOther =
+        this.pseudoOther = {
             textIndex: 0,
             show: true,
             interact: true,
@@ -36,51 +36,7 @@ class SStory {
     }
 }
 
-if (false) {
-    export let sstory = new SStory();
-} else {
-    export let story = {
-        //character stats
-        player: null,
-        team: null,
-
-        setRandomPosition: function() {},
-
-        //level data
-        size: 32,
-        pause: false,
-
-        //mission
-        //quest : "Introduction",
-        quest: "None",
-        taskIndex: 0,
-        trigger: "none",
-        cutscene: false,
-
-        //dialogue
-        dialogue: {
-            text: "",
-            index: 0,
-            show: false,
-            threshold: 0
-        },
-
-        //choice
-        choice_box: {
-            options: [],
-            index: 0,
-            lines: [],
-            show: false
-        },
-
-        pseudoOther: {
-            textIndex: 0,
-            show: true,
-            interact: true,
-        }
-    }
-}
-
+export let story = new Story();
 
 export function triggerWord(word) {
     if (story.quest === "Register")

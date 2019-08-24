@@ -894,7 +894,6 @@ function drawDialog() {
                 cx, cy2,
                 (longest / 10) * (selectIMG.width), (choice.lines[choice.index] / 2) * selectIMG.height);
         }
-
     }
 }
 
