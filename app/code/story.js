@@ -34,6 +34,19 @@ class Story {
     setRandomPosition() {
 
     }
+
+    endScene() {
+        this.taskIndex = 0;
+        this.dialogue.show = false;
+        this.dialogue.text = [""];
+        this.choice_box.show = false;
+        this.cutscene = false;
+        this.player.other.interact = false;
+        this.player.other.textIndex = 0;
+        this.player.interact = false;
+        this.dialogue.index = 0;
+        this.trigger = "none";
+    }
 }
 
 export let story = new Story();
@@ -51,19 +64,6 @@ export function triggerWord(word) {
     else
         return false;
 
-}
-
-function endScene(_story) {
-    _story.taskIndex = 0;
-    _story.dialogue.show = false;
-    _story.dialogue.text = [""];
-    _story.choice_box.show = false;
-    _story.cutscene = false;
-    _story.player.other.interact = false;
-    _story.player.other.textIndex = 0;
-    _story.player.interact = false;
-    _story.dialogue.index = 0;
-    _story.trigger = "none";
 }
 
 //function newDialog(_story, dialogue) {
@@ -174,7 +174,7 @@ function doDemo(trigger, taskIndex, player, _area) {
                 story.setRandomPosition(player.other, _area);
         }
 
-        endScene(story);
+        story.endScene();
     }
 }
 
@@ -188,7 +188,7 @@ function doRegister(something) {
                 "I can't wait to see | what swag they have to | offer!"
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     }
 
@@ -206,7 +206,7 @@ function doRegister(something) {
 
         } else {
 
-            endScene(story);
+            story.endScene();
             dialogue.threshold++;
         }
     }
@@ -232,7 +232,7 @@ function doRegister(something) {
             story.team.energy += 10;
             story.quest = "Small Talk";
             dialogue.threshold = 0;
-            endScene(story);
+            story.endScene();
         }
     }
 
@@ -265,7 +265,7 @@ alert("whoah nelly, doSmallTalk", something);
                 ]);
             }
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
             dialogue.threshold++;
         }
     }
@@ -281,7 +281,7 @@ alert("whoah nelly, doSmallTalk", something);
             ])
         } else if (taskIndex == 1) {
             dialogue.threshold++;
-            endScene(story);
+            story.endScene();
         }
     }
 
@@ -293,7 +293,7 @@ alert("whoah nelly, doSmallTalk", something);
                 "Marketing is one of | my strong suits."
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     } else if (trigger === "talk_Sonia") {
         story.cutscene = true;
@@ -302,7 +302,7 @@ alert("whoah nelly, doSmallTalk", something);
                 "Let me solve your | frustrations. It may just | be a simple error."
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     } else if (trigger === "talk_Nick") {
         story.cutscene = true;
@@ -311,7 +311,7 @@ alert("whoah nelly, doSmallTalk", something);
                 "I can't wait to | start programming."
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     } else if (trigger === "talk_Anthony") {
         story.cutscene = true;
@@ -320,7 +320,7 @@ alert("whoah nelly, doSmallTalk", something);
                 "The design and structure is | the most important part | of a program."
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     } else if (trigger === "talk_Belle") {
         story.cutscene = true;
@@ -329,7 +329,7 @@ alert("whoah nelly, doSmallTalk", something);
                 "I research a lot. | There are so many | posibilities."
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     } else if (trigger === "talk_Troy") {
         story.cutscene = true;
@@ -338,7 +338,7 @@ alert("whoah nelly, doSmallTalk", something);
                 "Kind of like a jack-of-all | trades you know?"
             ])
         } else if (taskIndex == 1) {
-            endScene(story);
+            story.endScene();
         }
     }
 
