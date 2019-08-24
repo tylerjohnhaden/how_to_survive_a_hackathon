@@ -68,14 +68,18 @@ class Story {
 
         return false;
     }
+
+    // newDialog was present in the original source, but did not have any
+    //   references. I have ported over the logic, but cannot speak to it's
+    //   functionality or context.
+    //
+    // newDialog(dialogueText) {
+    //     this.dialogue.text = dialogueText;
+    //     this.dialogue.show = true;
+    // }
 }
 
 export let story = new Story();
-
-//function newDialog(_story, dialogue) {
-//    _story.dialogue.text = dialogue;
-//    _story.dialogue.show = true;
-//}
 
 //count the lines from each choice given
 function countChoice() {
