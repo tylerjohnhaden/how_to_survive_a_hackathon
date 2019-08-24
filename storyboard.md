@@ -1,6 +1,8 @@
 # How To Survive a Hackathon
 _Project for Bit Camp 4/6/2018_
 
+*Original Creators: [MasterMilkX/how_to_survive_a_hackathon](https://github.com/MasterMilkX/how_to_survive_a_hackathon)*
+
 ![missing title image](title.png)
 
 ## Objects in the game
