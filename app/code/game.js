@@ -1349,10 +1349,10 @@ export function animate() {
 
     if (team.energy <= 0 && !stopped) {
         window.alert("RAN OUT OF ENERGY! GAME OVER");
-        stopGame(_story);
+        stopGame(story);
     } else if (team.projectProg >= 100 && !stopped) {
         window.alert("CONGRATS! YOU FINISHED YOUR PROJECT!");
-        stopGame(_story);
+        stopGame(story);
     }
 }
 
