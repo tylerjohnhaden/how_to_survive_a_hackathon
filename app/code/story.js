@@ -1,4 +1,4 @@
-class Story {
+export class Story {
     constructor() {
         this.player = null;
         this.team = null;
@@ -9,6 +9,7 @@ class Story {
         this.quest = "None";
         this.trigger = "none";
         this.taskIndex = 0;
+        this.cutscene = false;
 
         this.dialogue = {
             text: "",
@@ -69,14 +70,14 @@ class Story {
         return false;
     }
 
-    // newDialog and endChoice were present in the original source, but did
+    newDialog(dialogueText) {
+        this.dialogue.text = dialogueText;
+        this.dialogue.show = true;
+    }
+
+    // endChoice was present in the original source, but did
     // not have any references. I have ported over the logic, but cannot speak
     // to it's functionality or context.
-    //
-    // newDialog(dialogueText) {
-    //     this.dialogue.text = dialogueText;
-    //     this.dialogue.show = true;
-    // }
     //
     // // reset the choice options
     // function endChoice() {
@@ -98,32 +99,24 @@ class Story {
 
         this.choice_box.lines = lines;
     }
-}
 
-export let story = new Story();
-
-export function play(_area) {
-    //make local variables
-    var trigger = story.trigger;
-    var taskIndex = story.taskIndex;
-    var cutscene = story.cutscene;
-    var dialogue = story.dialogue;
-    var choice = story.choice_box;
-    var player;
-    if (story.player) {
-        player = story.player;
-    }
-
-    if (story.quest === "Demo") {
-        doDemo(trigger, taskIndex, player, _area);
-    } else if (story.quest === "Register") {
-        doRegister();
-    } else if (story.quest === "Small Talk") {
-        doSmallTalk();
+    play(area) {
+        if (this.quest === "Demo") {
+            doDemo(this, area);
+        } else if (this.quest === "Register") {
+            doRegister(this);
+        } else if (this.quest === "Small Talk") {
+            doSmallTalk(this);
+        }
     }
 }
 
-function doDemo(trigger, taskIndex, player, _area) {
+function doDemo(_story, _area) {
+    let trigger = _story.trigger;
+    let taskIndex = _story.taskIndex;
+    let player = _story.player;
+
+
     let recognizedTriggers = [
         'touch_floppy',
         'touch_wifi',
@@ -139,91 +132,91 @@ function doDemo(trigger, taskIndex, player, _area) {
 
     // start the play
 
-    story.cutscene = true;
+    _story.cutscene = true;
 
     if (taskIndex == 0) {
        if (trigger === "touch_floppy") {
-           story.dialogue.text = ["You got the floppy disk!", "Your overall team skill | has improved!"];
+           _story.dialogue.text = ["You got the floppy disk!", "Your overall team skill | has improved!"];
 
        } else if (trigger === "touch_wifi") {
-            story.dialogue.text = ["You found the wifi!", "Your project is 2% more | done!"];
+            _story.dialogue.text = ["You found the wifi!", "Your project is 2% more | done!"];
 
        } else if (trigger === "touch_coffee") {
-            story.dialogue.text = ["You got the coffee!", "Your team's energy | increased by 10!"];
+            _story.dialogue.text = ["You got the coffee!", "Your team's energy | increased by 10!"];
 
        } else if (trigger === "touch_redbull") {
-            story.dialogue.text = ["You got the Red Bull!", "Your team's energy | increased by 15!"];
+            _story.dialogue.text = ["You got the Red Bull!", "Your team's energy | increased by 15!"];
 
        } else if (trigger === "touch_project") {
-            story.dialogue.text = ["Project: 4d 49 4c 4b", "I am " + story.team.projectProg + "% complete!"];
+            _story.dialogue.text = ["Project: 4d 49 4c 4b", "I am " + _story.team.projectProg + "% complete!"];
        }
 
-       story.dialogue.show = true;
+       _story.dialogue.show = true;
     }
 
     if (taskIndex == 1) {
         if (trigger === "touch_floppy") {
                 for (var t = 0; t < 5; t++) {
-                    story.team.teamSkill[t] += 5;
+                    _story.team.teamSkill[t] += 5;
                 }
-                story.setRandomPosition(player.other, _area);
+                _story.setRandomPosition(player.other, _area);
 
         } else if (trigger === "touch_wifi") {
-                story.projectProg += 2;
-                story.setRandomPosition(player.other, _area);
+                _story.projectProg += 2;
+                _story.setRandomPosition(player.other, _area);
 
         } else if (trigger === "touch_coffee") {
-                story.team.energy += 10;
-                story.setRandomPosition(player.other, _area);
+                _story.team.energy += 10;
+                _story.setRandomPosition(player.other, _area);
 
         } else if (trigger === "touch_redbull") {
-                story.team.energy += 15;
-                story.setRandomPosition(player.other, _area);
+                _story.team.energy += 15;
+                _story.setRandomPosition(player.other, _area);
         }
 
-        story.endScene();
+        _story.endScene();
     }
 }
 
-function doRegister(something) {
-    alert("whoah nelly, doRegister", something);
+function doRegister(_story) {
+    alert("whoah nelly, doRegister", _story);
     if (trigger === "start_game") {
-        story.cutscene = true;
-        story.player.other = story.pseudoOther;
+        _story.cutscene = true;
+        _story.player.other = _story.pseudoOther;
         if (taskIndex == 0) {
-            newDialog(story, ["...", player.name + ": Wow! This gym is | huge!",
+            _story.newDialog(_story, ["...", player.name + ": Wow! This gym is | huge!",
                 "I can't wait to see | what swag they have to | offer!"
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     }
 
     if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && _area.scene === "hall") {
         alert("I wasn't planning on this happening");
-        //story.storyFunct[1]();
+        //_story.storyFunct[1]();
     }
     if (trigger.match(/x8_y[0-9]/) && dialogue.threshold == 0 && _area.scene === "main") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["...", player.name + ": There's so many | people...",
+            _story.newDialog(_story, ["...", player.name + ": There's so many | people...",
                 "Where do I check in?",
                 "I guess I should look | for a staff member."
             ]);
 
         } else {
 
-            story.endScene();
+            _story.endScene();
             dialogue.threshold++;
         }
     }
 
 
     if (trigger === "talk_organizer") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            var playerName = story.player.name;
-            newDialog(story, [player.name + ": Hey. I am here for | the hackathon.",
+            var playerName = _story.player.name;
+            _story.newDialog(_story, [player.name + ": Hey. I am here for | the hackathon.",
                 "Clerk: Thanks for coming! | Would you like some swag to | start off?",
                 "Swag helps increase your| energy and so does | interacting with people.",
                 player.name + ": Sure thanks!",
@@ -236,10 +229,10 @@ function doRegister(something) {
                 "In the meantime, try | talking to some people | and don't forget to grab | your swag!"
             ]);
         } else if (taskIndex == 1) {
-            story.team.energy += 10;
-            story.quest = "Small Talk";
+            _story.team.energy += 10;
+            _story.quest = "Small Talk";
             dialogue.threshold = 0;
-            story.endScene();
+            _story.endScene();
         }
     }
 
@@ -247,121 +240,127 @@ function doRegister(something) {
 
 
 
-function doSmallTalk(something) {
-alert("whoah nelly, doSmallTalk", something);
+function doSmallTalk(_story) {
+    alert("whoah nelly, doSmallTalk", _story);
+
+    let trigger = _story.trigger;
+    let taskIndex = _story.taskIndex;
+    let dialogue = _story.dialogue;
+    let player = _story.player;
+
     //talk to random npcs
     if (trigger === "talk_???") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
             if (dialogue.threshold % 3 == 0) {
-                newDialog(story, ["???: I feel so jittery~! | Do I have wings yet?",
+                _story.newDialog(_story, ["???: I feel so jittery~! | Do I have wings yet?",
                     "You can regain energy by | getting a sweet dose | of caffiene.",
                     "Redbull is my favorite!",
                     "You can also try | sleeping and eating | caffiene packed chocolate | bars.",
                     player.name + ": (Jeez is everyone | like this?)"
                 ]);
             } else if (dialogue.threshold % 3 == 1) {
-                newDialog(story, ["???: I am so | excited to impress the | judges.",
+                _story.newDialog(_story, ["???: I am so | excited to impress the | judges.",
                     "I heard the prizes | include internships and | gaming consoles.",
                     "Doesn't that sound | like an awesome combination?"
                 ]);
             } else if (dialogue.threshold % 3 == 2) {
-                newDialog(story, ["???: Hey did you hear about | that one company's | challenge?",
+                _story.newDialog(_story, ["???: Hey did you hear about | that one company's | challenge?",
                     "They want the hackers | to create something unique!",
                     "Sounds fun doesn't it? | That can be anything!"
                 ]);
             }
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
             dialogue.threshold++;
         }
     }
 
     //announcement after 3 talks
     else if (trigger.match(/x[0-9]+_y[0-9]+/g) && dialogue.threshold == 3) {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["!!!!", "Staff: Hello hackers! | Just a quick announcement.",
+            _story._story.newDialog(_story, ["!!!!", "Staff: Hello hackers! | Just a quick announcement.",
                 "The hackathon will begin | shortly so start picking | members for your team.",
                 "You can only have four | members in a team.",
                 "Talk to fellow hackers | They will have information | about their skills."
             ])
         } else if (taskIndex == 1) {
             dialogue.threshold++;
-            story.endScene();
+            _story.endScene();
         }
     }
 
     //talk to hackers
     else if (trigger === "talk_Mac") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Mac: I really like | release the final product.",
+            _story.newDialog(_story, ["Mac: I really like | release the final product.",
                 "Marketing is one of | my strong suits."
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     } else if (trigger === "talk_Sonia") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Sonia: Finding bugs in | code and squashing them | is super fun.",
+            _story.newDialog(_story, ["Sonia: Finding bugs in | code and squashing them | is super fun.",
                 "Let me solve your | frustrations. It may just | be a simple error."
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     } else if (trigger === "talk_Nick") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Nick: Development in the | back-end fits my | style more.",
+            _story.newDialog(_story, ["Nick: Development in the | back-end fits my | style more.",
                 "I can't wait to | start programming."
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     } else if (trigger === "talk_Anthony") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Anthony: I don't believe | in messy code.",
+            _story.newDialog(_story, ["Anthony: I don't believe | in messy code.",
                 "The design and structure is | the most important part | of a program."
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     } else if (trigger === "talk_Belle") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Belle: The internet is full of | information~!",
+            _story.newDialog(_story, ["Belle: The internet is full of | information~!",
                 "I research a lot. | There are so many | posibilities."
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     } else if (trigger === "talk_Troy") {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Troy: I know just | a little bit of | everything.",
+            _story.newDialog(_story, ["Troy: I know just | a little bit of | everything.",
                 "Kind of like a jack-of-all | trades you know?"
             ])
         } else if (taskIndex == 1) {
-            story.endScene();
+            _story.endScene();
         }
     }
 
     //go back to the organizer
     else if (trigger === "talk_organizer" && dialogue.threshold > 3) {
-        story.cutscene = true;
+        _story.cutscene = true;
         if (taskIndex == 0) {
-            newDialog(story, ["Staff: Do you know who you | want to be on your team | yet?"])
+            _story.newDialog(_story, ["Staff: Do you know who you | want to be on your team | yet?"])
         } else if (taskIndex == 1) {
             newChoice(["Yes", "No"]);
         }
     } else if (trigger === "> Yes") {
         if (taskIndex == 2) {
-            newDialog(story, ["Great, who would you | like to add to | your team?"]);
+            _story.newDialog(_story, ["Great, who would you | like to add to | your team?"]);
         } else if (taskIndex == 3) {
-            newChoice([""])
+            _story.newChoice([""])
         }
     }
 }

@@ -10,13 +10,15 @@ import { Area } from './model/Area.js';
 import { Item } from './model/Item.js';
 
 import { init, team, PLAYER_NAME, npcs, animate, allImagesAreReady, readyAllTheThings } from './code/game.js';
+import { Story } from './code/story.js';
 
 async function main(demo) {
 
     // Initialize game area, and set items
     let area = init(
         new Area(areaData.find(areaDatum => areaDatum.scene == 'main')),
-        itemData.map(itemDatum => new Item(itemDatum))
+        itemData.map(itemDatum => new Item(itemDatum)),
+        new Story()
     );
 
     let things = [].concat(
@@ -113,4 +115,4 @@ function sleep(ms) {
 }
 
 // main loop, boolean means demo or no demo
-main(false);
+main(true);

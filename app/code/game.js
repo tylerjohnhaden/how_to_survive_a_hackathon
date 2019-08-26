@@ -1,6 +1,6 @@
 // Game code
 
-import { story, play } from './story.js';
+let story;
 
 export const PLAYER_NAME = 'HAX';
 
@@ -347,8 +347,8 @@ function faceOpposite(npc) {
 }
 
 //non-cutscene specific behavior
-function defaultBehavior(npc, _area) {
-    if (!story.cutscene) {
+function defaultBehavior(npc, _area, _story) {
+    if (!_story.cutscene) {
         if (npc.interact) {
             clearInterval(npc.wt);
             npc.wt = 0;
@@ -781,7 +781,7 @@ function drawBars() {
 
 //render everything
 // guaranteed to run after all images are loaded
-async function render(_area) {
+async function render(_area, _story) {
     ctx.save();
 
     ctx.translate(-camera.x, -camera.y);
@@ -820,10 +820,10 @@ async function render(_area) {
     drawchar(player);
 
     //gui
-    drawGUI();
+    drawGUI(_story);
 
 
-    //if(story.area === "vals")
+    //if(_story.area === "vals")
     //drawTestMap(levelList[1]);
 
     ctx.restore();
@@ -831,8 +831,8 @@ async function render(_area) {
 
 }
 
-function drawGUI() {
-    drawDialog();
+function drawGUI(_story) {
+    drawDialog(_story);
     drawBars();
 }
 
@@ -840,9 +840,9 @@ function drawGUI() {
 ////////////////////   DIALOGUE     ///////////////////
 
 //show dialog gui
-function drawDialog() {
-    var dialogue = story.dialogue;
-    var choice = story.choice_box;
+function drawDialog(_story) {
+    var dialogue = _story.dialogue;
+    var choice = _story.choice_box;
     if (dialogue.show) {
         ctx.drawImage(dialogImage, camera.x, camera.y);
         //wrapText(dialogue.text[dialogue.index], camera.x + 12, camera.y + 116)
@@ -868,16 +868,16 @@ function drawDialog() {
         if (choice.show) {
             //get the maximum x length
             var longest = 10;
-            if (!hasMultiLine()) {
+            if (!hasMultiLine(_story)) {
                 longest = bigChoice(choice.options);
             }
 
             //choice boxes
             var cx = camera.x + 3;
             for (var c = 0; c < choice.options.length; c++) {
-                var cy = camera.y + 95 + (-((optionIMG.height - 2) / 2) * (sumLines(c)));
+                var cy = camera.y + 95 + (-((optionIMG.height - 2) / 2) * (sumLines(c, _story)));
 
-                //var cy = camera.y+95+(-(optionIMG.height-1)*((sumLines(c)*11)+1));
+                //var cy = camera.y+95+(-(optionIMG.height-1)*((sumLines(c, _story)*11)+1));
                 ctx.drawImage(optionIMG, 0, 0, optionIMG.width, optionIMG.height,
                     cx, cy, (longest / 10) * (optionIMG.width), (choice.lines[c] / 2) * optionIMG.height);
                 choiceText(choice.options[c], choice.lines[c], cy + 9);
@@ -887,8 +887,8 @@ function drawDialog() {
             }
 
             //select
-            var cy2 = camera.y + 95 - ((optionIMG.height - 2) / 2) * (sumLines(choice.index));
-            //((((optionIMG.height-2)/2)*(sumLines(choice.index)))*(choice.index-choice.options.length)),
+            var cy2 = camera.y + 95 - ((optionIMG.height - 2) / 2) * (sumLines(choice.index, _story));
+            //((((optionIMG.height-2)/2)*(sumLines(choice.index, _story)))*(choice.index-choice.options.length)),
 
             ctx.drawImage(selectIMG, 0, 0, selectIMG.width, selectIMG.height,
                 cx, cy2,
@@ -916,8 +916,8 @@ function choiceText(text, lines, y) {
 }
 
 //
-function sumLines(i) {
-    var lines = story.choice_box.lines;
+function sumLines(i, _story) {
+    var lines = _story.choice_box.lines;
     var sum = 0;
     for (var l = i; l < lines.length; l++) {
         sum += lines[l];
@@ -925,9 +925,9 @@ function sumLines(i) {
     return sum;
 }
 
-function hasMultiLine() {
-    for (var l = 0; l < story.choice_box.lines.length; l++) {
-        if (story.choice_box.lines[l] > 1)
+function hasMultiLine(_story) {
+    for (var l = 0; l < _story.choice_box.lines.length; l++) {
+        if (_story.choice_box.lines[l] > 1)
             return true;
     }
     return false;
@@ -1093,25 +1093,25 @@ function moveKeys(_area) {
 var reInteract = true;
 var cutT = 0;
 
-function actionKeys(_area) {
+function actionKeys(_area, _story) {
     //interact [Z]
-    var dialogue = story.dialogue;
-    if (keys[a_key] && !player.interact && !player.moving && normal_game_action()) {
+    var dialogue = _story.dialogue;
+    if (keys[a_key] && !player.interact && !player.moving && normal_game_action(_story)) {
         for (var i = 0; i < items.length; i++) {
             if (canInteract(player, items[i], _area) && items[i].text) {
 
-                story.trigger = "touch_" + items[i].name;
+                _story.trigger = "touch_" + items[i].name;
                 reInteract = false;
                 player.other = items[i];
                 player.interact = true;
 
-                if (!story.cutscene && !story.triggerWord()) {
+                if (!_story.cutscene && !_story.triggerWord()) {
                     dialogue.text = items[i].text;
                     dialogue.index = 0;
                     typewrite();
                 } else {
                     dialogue.index = 0;
-                    play(_area);
+                    _story.play(_area);
                     typewrite();
                 }
                 return;
@@ -1119,7 +1119,7 @@ function actionKeys(_area) {
         }
         for (var i = 0; i < npcs.length; i++) {
             if (canTalk(player, npcs[i], _area) && npcs[i].text) {
-                story.trigger = "talk_" + npcs[i].name;
+                _story.trigger = "talk_" + npcs[i].name;
 
                 //setup
                 reInteract = false;
@@ -1131,7 +1131,7 @@ function actionKeys(_area) {
                 npcs[i].wt = 0;
 
                 //normal interaction
-                if (!story.cutscene && !story.triggerWord()) {
+                if (!_story.cutscene && !_story.triggerWord()) {
                     dialogue.text = npcs[i].text;
                     dialogue.index = npcs[i].text_index;
                     typewrite();
@@ -1139,7 +1139,7 @@ function actionKeys(_area) {
                 //cutscene interaction
                 else {
                     dialogue.index = 0;
-                    play(_area);
+                    _story.play(_area);
                     typewrite();
                 }
                 return;
@@ -1155,17 +1155,17 @@ function actionKeys(_area) {
             player.interact = false;
 
             //select item if options showing
-            if (story.choice_box.show) {
-                story.trigger = "> " + story.choice_box.options[story.choice_box.index];
-                story.taskIndex++;
+            if (_story.choice_box.show) {
+                _story.trigger = "> " + _story.choice_box.options[_story.choice_box.index];
+                _story.taskIndex++;
                 dialogue.index = 0;
-                play(_area);
+                _story.play(_area);
                 typewrite();
                 return;
             }
 
             //normal reset
-            if (!story.cutscene) {
+            if (!_story.cutscene) {
                 player.other.interact = false;
                 if (jump !== -1) {
                     player.other.text_index = jump;
@@ -1173,7 +1173,7 @@ function actionKeys(_area) {
                 }
                 dialogue.index = 0;
             } else {
-                story.taskIndex++;
+                _story.taskIndex++;
             }
         }
         //still more dialogue left
@@ -1192,39 +1192,21 @@ function actionKeys(_area) {
 }
 
 
-function normal_game_action() {
-    return (!story.cutscene && reInteract && !story.pause);
+function normal_game_action(_story) {
+    return (!_story.cutscene && reInteract && !_story.pause);
 }
 
 
 /////////////////////////     GAME FUNCTIONS    /////////////////////
 
-//function makeHallArea() {
-//    rows = 6;
-//    cols = 9;
-//    map = [
-//        [1, 1, 1, 1, 1, 1, 1, 1, 1],
-//        [1, 1, 1, 1, 1, 1, 1, 1, 1],
-//        [1, 1, 1, 1, 1, 1, 1, 1, 1],
-//        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-//        [0, 0, 0, 0, 0, 0, 0, 0, 0],
-//        [1, 1, 1, 1, 1, 1, 1, 1, 1]
-//    ]
-//    player.x = 1 * story.size;
-//    player.y = 3 * story.size;
-//    story.scene = "hall";
-//    for (var n = 0; n < npcs.length; n++) {
-//        npcs[n].show = false;
-//    }
-//
-//}
-
 let intervals = [];
 
 var projInc = 0;
 
-export function init(_area, _items) {
+export function init(_area, _items, _story) {
     player.show = false;
+
+    story = _story;
     story.setRandomPosition = randomPosition;
 
     var playerName = prompt("Enter your name");
@@ -1291,9 +1273,9 @@ export function init(_area, _items) {
 }
 
 // todo: figure out what this is supposed to do
-function startGame() {
-    story.quest = "Register";
-    story.trigger = "start_game";
+function startGame(_story) {
+    _story.quest = "Register";
+    _story.trigger = "start_game";
     makeHallArea();
     //resetCamera(area);
 }
@@ -1315,9 +1297,9 @@ function randomPosition(item, _area) {
 export function animate() {
     requestAnimationFrame(animate);
     canvas.focus();
-    render(area);
+    render(area, story);
 
-    play(area);
+    story.play(area);
 
     //player movement
     var pixX = Math.round(player.x / area.size);
@@ -1336,7 +1318,7 @@ export function animate() {
         for (var n = 0; n < npcs.length; n++) {
             var npc = npcs[n];
             travel(npc, area);
-            defaultBehavior(npc, area);
+            defaultBehavior(npc, area, story);
         }
     }
 
@@ -1362,22 +1344,22 @@ export function animate() {
         keyTick = 0;
     }
     moveKeys(area);
-    actionKeys(area);
+    actionKeys(area, story);
 
 
     if (team.energy <= 0 && !stopped) {
         window.alert("RAN OUT OF ENERGY! GAME OVER");
-        stopGame();
+        stopGame(_story);
     } else if (team.projectProg >= 100 && !stopped) {
         window.alert("CONGRATS! YOU FINISHED YOUR PROJECT!");
-        stopGame();
+        stopGame(_story);
     }
 }
 
 var stopped = false;
 
-function stopGame() {
-    story.pause = true;
+function stopGame(_story) {
+    _story.pause = true;
 
     intervals.forEach(interval => {
         clearInterval(interval);
