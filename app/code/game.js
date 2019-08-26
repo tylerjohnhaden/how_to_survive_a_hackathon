@@ -1,7 +1,5 @@
 // Game code
 
-let story;
-
 export const PLAYER_NAME = 'HAX';
 
 export var team = {
@@ -33,10 +31,10 @@ let ctx2 = guiCanvas.getContext('2d');
 
 let camera = { x: 0, y: 0 };
 
-// background image
-let area, areaImage, backgroundImage;
+let area, story;
+
 // gui
-let dialogImage, projectBarImage, teamBarImage, energyBarImage, fillerBarImage;
+let dialogImage, projectBarImage, teamBarImage, energyBarImage, fillerBarImage, areaImage, backgroundImage;
 
 
 export let npcs = [];
@@ -1347,16 +1345,14 @@ export function animate() {
     actionKeys(area, story);
 
 
-    if (team.energy <= 0 && !stopped) {
+    if (team.energy <= 0) {
         window.alert("RAN OUT OF ENERGY! GAME OVER");
         stopGame(story);
-    } else if (team.projectProg >= 100 && !stopped) {
+    } else if (team.projectProg >= 100) {
         window.alert("CONGRATS! YOU FINISHED YOUR PROJECT!");
         stopGame(story);
     }
 }
-
-var stopped = false;
 
 function stopGame(_story) {
     _story.pause = true;
@@ -1364,7 +1360,5 @@ function stopGame(_story) {
     intervals.forEach(interval => {
         clearInterval(interval);
     });
-
-    stopped = true;
 }
 
