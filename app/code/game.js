@@ -1,5 +1,7 @@
 // Game code
 
+import { Player } from '../model/Player.js';
+
 export const PLAYER_NAME = 'HAX';
 
 export var team = {
@@ -59,36 +61,7 @@ var start_key = 13; //[Enter]
 var actionKeySet = [a_key, b_key, select_key, start_key];
 var keys = [];
 
-function makePlayer() {
-    let playerImage = new Image();
-    playerImage.src = "./sprites/main.png";
-
-    return {
-        //sprite properties
-        name: PLAYER_NAME,
-        width: 16,
-        height: 16,
-        skin: playerImage,
-        ready: true,
-
-        //movement
-        speed: 2,
-        initPos: 0,
-        moving: false,
-        velX: 0,
-        velY: 0,
-        show: true,
-
-        //other properties
-        interact: false,
-        other: null,
-        pathQueue: [],
-        lastPos: [],
-        following: false,
-    };
-}
-
-var player = makePlayer();
+var player = new Player();
 var playerImage = player.skin;
 
 
@@ -633,10 +606,12 @@ function resetCamera(_area) {
 
 
 //random walking
-function drunkardsWalk(_area, sprite, boundary = null) {
+function drunkardsWalk(_area, sprite, boundary=null) {
     console.log('im drunk');
+
     var dice;
     var directions = ["north", "south", "west", "east"];
+
     if (!sprite.moving) {
         var pseudoChar = {
             dir: directions[0],
@@ -708,19 +683,17 @@ function smallStep(robot) {
 export function allImagesAreReady(verbose=false) {
 
     let namedImages = [
-//        [tiles, 'tiles'],
-        [playerImage, 'playerImage'],
         [dialogImage, 'dialogImage'],
         [projectBarImage, 'projectBarImage'],
         [teamBarImage, 'teamBarImage'],
         [energyBarImage, 'energyBarImage'],
         [fillerBarImage, 'fillerBarImage'],
         [areaImage, 'areaImage'],
-//        [hallwayPNG, 'hallwayPNG'],
     ];
 
     namedImages.push.apply(namedImages, npcs.map(npc => [npc.skin, `npc(${npc.name})`]));
     namedImages.push.apply(namedImages, items.map(item => [item.skin, `npc(${item.name})`]));
+    namedImages.push([player.skin, `player(${player.name})`]);
 
     return namedImages.every(namedImage => {
         let _image = namedImage[0];
@@ -1256,10 +1229,6 @@ export function init(_area, _items, _story) {
         areaImage.src = "./sprites/Hallway.png";
     }
 
-    player.moving = false;
-    player.action = "idle";
-    player.velY = 0;
-    player.velX = 0;
     player.x = area.startingCoordinates.x;
     player.y = area.startingCoordinates.y;
 
@@ -1313,11 +1282,10 @@ export function animate() {
 
     //npc movement
     if (!story.pause) {
-        for (var n = 0; n < npcs.length; n++) {
-            var npc = npcs[n];
+        npcs.forEach(npc => {
             travel(npc, area);
             defaultBehavior(npc, area, story);
-        }
+        });
     }
 
     //dialogue
@@ -1345,10 +1313,10 @@ export function animate() {
     actionKeys(area, story);
 
 
-    if (team.energy <= 0) {
+    if (team.energy <= 0 && !story.pause) {
         window.alert("RAN OUT OF ENERGY! GAME OVER");
         stopGame(story);
-    } else if (team.projectProg >= 100) {
+    } else if (team.projectProg >= 100 && !story.pause) {
         window.alert("CONGRATS! YOU FINISHED YOUR PROJECT!");
         stopGame(story);
     }
