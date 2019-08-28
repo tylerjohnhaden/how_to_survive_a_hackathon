@@ -1,18 +1,21 @@
-Project for Bit Camp 4/6/2018
+# How To Survive a Hackathon
+_Project for Bit Camp 4/6/2018_
 
-Objects in the game -
+*Original Creators: [MasterMilkX/how_to_survive_a_hackathon](https://github.com/MasterMilkX/how_to_survive_a_hackathon)*
 
-Player
-Chatbot
-Team of Additional Characters
-Upgrades
-Quest
-Quest Giver
-Health
-Tester
+![missing title image](title.png)
 
-Events from the Beginning of Bitcamp
+## Objects in the game
+- Player
+- Chatbot
+- Team of Additional Characters
+- Upgrades
+- Quest
+- Quest Giver
+- Health
+- Tester
 
+## Events from the Beginning of Bitcamp
 1. Check-in
 2. Sponsorship Fair
 3. Opening Ceremony
@@ -22,6 +25,11 @@ Events from the Beginning of Bitcamp
 7. Judging Final Projects
 8. Conclusion/ Leaving
 
+## Screenshot
+![missing screenshot image](screenshot1.png)
+
+## Draft Storyboard
+```
 Act I Scene I
 
 **Arrives at entrance of the Xfinity Center
@@ -310,6 +318,4 @@ Hacker: Morality increased
 
 redbull: You just grew wings. Morality increased.
 coffee: Oh it's vanilla mocha, my favorite. Morality increased. 	
-
-
-
+```
