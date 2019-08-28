@@ -985,56 +985,48 @@ function showText() {
 var keyTick = 0;
 var kt = null;
 
-//check for keydown
 document.body.addEventListener("keydown", function (e) {
+    if (moveKeySet.includes(e.keyCode) || actionKeySet.includes(e.keyCode)) {
+        // don't scroll
+        e.preventDefault();
+
+        // register the button is down
+        keys[e.keyCode] = true;
+    }
+
     //scroll through the options to choose for dialog
     if (story.cutscene && story.choice_box.show) {
-        var c = story.choice_box;
-        if (e.keyCode == downKey || e.keyCode == rightKey)
+        let c = story.choice_box;
+
+        if (e.keyCode == downKey || e.keyCode == rightKey) {
             story.choice_box.index = (c.index + 1) % c.options.length;
-        else if (e.keyCode == upKey || e.keyCode == leftKey)
+        } else if (e.keyCode == upKey || e.keyCode == leftKey) {
             story.choice_box.index = ((c.index + c.options.length) - 1) % c.options.length;
+        }
     }
 });
 
-//determine if valud key to press
-document.body.addEventListener("keydown", function (e) {
-    console.log(e.keyCode, moveKeySet, actionKeySet);
-    if (inArr(moveKeySet, e.keyCode)) {
-        keys[e.keyCode] = true;
-    } else if (inArr(actionKeySet, e.keyCode)) {
-        keys[e.keyCode] = true;
-    }
-});
-
-//check for key released
 document.body.addEventListener("keyup", function (e) {
-    console.log(e.keyCode, moveKeySet, actionKeySet, "up");
+    if (moveKeySet.includes(e.keyCode)) {
+        // register the button is up
+        keys[e.keyCode] = false;
 
-    if (inArr(moveKeySet, e.keyCode)) {
+    } else if (actionKeySet.includes(e.keyCode)) {
+        // register the button is up
         keys[e.keyCode] = false;
-    } else if (inArr(actionKeySet, e.keyCode)) {
-        keys[e.keyCode] = false;
+
         reInteract = true;
         text_speed = 85;
     }
 });
 
-//prevent scrolling with the game
-window.addEventListener("keydown", function (e) {
-    // space and arrow keys
-    if (([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1)) {
-        e.preventDefault();
-    }
-}, false);
 
-
-//check if any directional key is held down
+// check if any directional key is held down
 function anyKey() {
     return (keys[upKey] || keys[downKey] || keys[leftKey] || keys[rightKey])
 }
 
-//movement arrow keys
+// movement arrow keys
 function moveKeys(_area) {
     if (!player.moving && !player.interact && !story.pause && !story.cutscene) {
         if (keyTick < 1) {
@@ -1329,4 +1321,3 @@ function stopGame(_story) {
         clearInterval(interval);
     });
 }
-
